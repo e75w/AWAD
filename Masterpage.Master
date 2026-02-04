@@ -1,16 +1,30 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Masterpage.master.cs" Inherits="_240795P_EvanLim.Masterpage" %>
 
 <!DOCTYPE html>
-
 <html>
 <head runat="server">
-    <title></title>
-    <asp:ContentPlaceHolder ID="head" runat="server">
-    </asp:ContentPlaceHolder>
+    <title>Music Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <form id="form1" runat="server">
-        <div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="mainPg.aspx">MusicStore</a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="mainPg.aspx">Home</a>
+                    <a class="nav-link" href="products.aspx">Shop</a>
+                    <% if (Session["UserId"] == null) { %>
+                        <a class="nav-link" href="login.aspx">Login</a>
+                    <% } else { %>
+                        <a class="nav-link" href="orders.aspx">Checkout</a>
+                        <asp:LinkButton ID="btnLogout" runat="server" CssClass="nav-link" OnClick="Logout_Click">Logout</asp:LinkButton>
+                    <% } %>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-4">
             <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
             </asp:ContentPlaceHolder>
         </div>
