@@ -9,7 +9,9 @@
                     <div class='carousel-item <%# Container.ItemIndex == 0 ? "active" : "" %>'>
                         <img src='<%# Eval("ImageUrl") %>' class="d-block w-100" style="height:400px; object-fit:cover;">
                         <div class="carousel-caption">
-                            <h3><%# Eval("Name") %></h3>
+                            <h3 style="background-color: rgba(0, 0, 0, 0.6); padding: 10px 20px; border-radius: 5px; display: inline-block;">
+                                <%# Eval("Name") %>
+                            </h3>
                         </div>
                     </div>
                 </ItemTemplate>
