@@ -31,18 +31,31 @@ namespace _240795P_EvanLim
         private void LoadCart()
         {
             List<string> cart = Session["Cart"] as List<string>;
+
+            // Check if cart is empty to avoid SQL errors
             if (cart != null && cart.Count > 0)
             {
-                // Convert list of IDs '1,2,3' into a SQL IN clause
-                // Note: In production, use parameters/Stored Procedures to prevent Injection here
-                string ids = string.Join(",", cart);
-
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
-                    // This query is simplified for the example. Be careful with SQL Injection on 'ids'.
-                    // Better approach: parameterized loop or TVP.
-                    string sql = $"SELECT * FROM Products WHERE Id IN ({ids})";
-                    SqlDataAdapter da = new SqlDataAdapter(sql, conn);
+                    conn.Open();
+
+                    List<string> paramNames = new List<string>();
+                    SqlCommand cmd = new SqlCommand();
+                    cmd.Connection = conn;
+
+                    for (int i = 0; i < cart.Count; i++)
+                    {
+                        string paramName = "@id" + i;
+                        paramNames.Add(paramName);
+                        cmd.Parameters.AddWithValue(paramName, cart[i]);
+                    }
+
+                    string inClause = string.Join(",", paramNames);
+                    string sql = $"SELECT * FROM Products WHERE Id IN ({inClause})";
+
+                    cmd.CommandText = sql;
+
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
 
@@ -58,34 +71,71 @@ namespace _240795P_EvanLim
                     ViewState["TotalAmount"] = total;
                 }
             }
+            else
+            {
+                // Handle empty cart (optional: hide grid or show message)
+                lblTotal.Text = "$0.00";
+            }
         }
 
         protected void btnCheckout_Click(object sender, EventArgs e)
         {
-            // Requirement: Complex Feature (Checkout)
-            try
+            List<string> cart = Session["Cart"] as List<string>;
+            if (cart == null || cart.Count == 0) return;
+
+            decimal totalAmount = 0;
+            if (ViewState["TotalAmount"] != null)
             {
-                using (SqlConnection conn = new SqlConnection(connStr))
-                {
-                    conn.Open();
-                    string sql = "INSERT INTO Orders (Id, UserId, TotalAmount, OrderDate) VALUES (@Id, @UserId, @Total, @Date)";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-
-                    cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
-                    cmd.Parameters.AddWithValue("@UserId", Session["UserId"]);
-                    cmd.Parameters.AddWithValue("@Total", ViewState["TotalAmount"]);
-                    cmd.Parameters.AddWithValue("@Date", DateTime.Now);
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                // Clear cart and show success
-                Session["Cart"] = null;
-                Response.Write("<script>alert('Payment Successful!'); window.location='mainPg.aspx';</script>");
+                totalAmount = Convert.ToDecimal(ViewState["TotalAmount"]);
             }
-            catch (Exception ex)
+
+            Guid newOrderId = Guid.NewGuid();
+            string userId = Session["UserId"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
             {
-                lblMessage.Text = "Error processing order: " + ex.Message;
+                conn.Open();
+                // Start a Transaction (Ensures Orders and Items are saved together)
+                SqlTransaction transaction = conn.BeginTransaction();
+
+                try
+                {
+                    // INSERT INTO Orders TABLE
+                    string orderSql = "INSERT INTO Orders (Id, UserId, TotalAmount, OrderDate) VALUES (@Id, @UserId, @Total, @Date)";
+                    SqlCommand cmdOrder = new SqlCommand(orderSql, conn, transaction);
+                    cmdOrder.Parameters.AddWithValue("@Id", newOrderId);
+                    cmdOrder.Parameters.AddWithValue("@UserId", userId);
+                    cmdOrder.Parameters.AddWithValue("@Total", totalAmount);
+                    cmdOrder.Parameters.AddWithValue("@Date", DateTime.Now);
+                    cmdOrder.ExecuteNonQuery();
+
+                    // INSERT INTO OrderDetails TABLE (Loop through cart) --> 1 item per row
+                    foreach (string productId in cart)
+                    {
+                        string itemSql = @"INSERT INTO OrderDetails (Id, OrderId, ProductId, PriceAtPurchase, Quantity) 
+                                           VALUES (NEWID(), @OrderId, @ProductId, 
+                                           (SELECT Price FROM Products WHERE Id = @ProductId), 1)";
+
+                        SqlCommand cmdItem = new SqlCommand(itemSql, conn, transaction);
+                        cmdItem.Parameters.AddWithValue("@OrderId", newOrderId);
+                        cmdItem.Parameters.AddWithValue("@ProductId", productId);
+
+                        cmdItem.ExecuteNonQuery();
+                    }
+
+                    // COMMIT TRANSACTION (Save everything)
+                    transaction.Commit();
+
+                    // Clear cart and redirect
+                    Session["Cart"] = null;
+                    Response.Write("<script>alert('Order placed successfully!'); window.location='mainPg.aspx';</script>");
+                }
+                catch (Exception ex)
+                {
+                    // If error, undo everything
+                    transaction.Rollback();
+                    lblMessage.Text = "Transaction Failed: " + ex.Message;
+                }
             }
         }
     }
