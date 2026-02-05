@@ -69,6 +69,32 @@ namespace _240795P_EvanLim
             }
         }
 
+        protected void gvCart_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName == "RemoveItem")
+            {
+                int rowIndex = Convert.ToInt32(e.CommandArgument);
+
+                string productId = gvCart.DataKeys[rowIndex].Value.ToString();
+                string userId = Session["UserId"].ToString();
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    string sql = "DELETE FROM CartItems WHERE UserId = @UserId AND ProductId = @ProductId";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@ProductId", productId);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
+                LoadCart();
+
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Item removed.');", true);
+            }
+        }
+
         protected void btnCheckout_Click(object sender, EventArgs e)
         {
             Response.Redirect("Payment");
