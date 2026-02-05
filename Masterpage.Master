@@ -10,14 +10,14 @@
     <form id="form1" runat="server">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="mainPg.aspx">MusicStore</a>
+                <a class="navbar-brand" href="MainPage.aspx">MusicStore</a>
                 <div class="navbar-nav">
-                    <a class="nav-link" href="mainPg.aspx">Home</a>
-                    <a class="nav-link" href="products.aspx">Shop</a>
+                    <a class="nav-link" href="MainPage.aspx">Home</a>
+                    <a class="nav-link" href="Products.aspx">Shop</a>
                     <% if (Session["UserId"] == null) { %>
                         <a class="nav-link" href="login.aspx">Login</a>
                     <% } else { %>
-                        <a class="nav-link" href="orders.aspx">Checkout</a>
+                        <a class="nav-link" href="Orders.aspx">Checkout</a>
                         <asp:LinkButton ID="btnLogout" runat="server" CssClass="nav-link" OnClick="Logout_Click">Logout</asp:LinkButton>
                     <% } %>
                 </div>
