@@ -13,15 +13,12 @@ namespace _240795P_EvanLim
 {
     public partial class Admin : System.Web.UI.Page
     {
-        // Using MainDBConnection as requested
         string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // 1. AUTHORISATION (Fixed Feature: Role Security)
             if (Session["Role"] == null || Session["Role"].ToString() != "Admin")
             {
-                // If not admin, send them home
                 Response.Redirect("/");
             }
 
@@ -32,28 +29,23 @@ namespace _240795P_EvanLim
             }
         }
 
-        // --- COMPLEX FEATURE: ANALYTICS ---
         private void LoadAnalytics()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
 
-                // Metric 1: Total Revenue
                 string revenueSql = "SELECT SUM(TotalAmount) FROM Orders";
                 SqlCommand cmdRev = new SqlCommand(revenueSql, conn);
                 object revResult = cmdRev.ExecuteScalar();
                 decimal totalRev = (revResult != DBNull.Value && revResult != null) ? Convert.ToDecimal(revResult) : 0;
-                lblTotalRevenue.Text = totalRev.ToString("C"); // Formats as Currency ($)
+                lblTotalRevenue.Text = totalRev.ToString("C");
 
-                // Metric 2: Total Orders
                 string countSql = "SELECT COUNT(*) FROM Orders";
                 SqlCommand cmdCount = new SqlCommand(countSql, conn);
                 int totalOrders = (int)cmdCount.ExecuteScalar();
                 lblTotalOrders.Text = totalOrders.ToString();
 
-                // Metric 3: Top Selling Product
-                // This complex query joins OrderDetails with Products to find the most popular item
                 string topSql = @"
                     SELECT TOP 1 p.Name 
                     FROM OrderDetails od
@@ -67,15 +59,11 @@ namespace _240795P_EvanLim
             }
         }
 
-        // --- FIXED FEATURE: CRUD (READ) ---
         private void LoadInventory()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "SELECT * FROM Products ORDER BY DateAdded DESC"; // Show newest first
-
-                // Note: If you don't have a DateAdded column yet, just use: ORDER BY Name
-                // string sql = "SELECT * FROM Products ORDER BY Name";
+                string sql = "SELECT * FROM Products ORDER BY Category DESC";
 
                 SqlDataAdapter da = new SqlDataAdapter(sql, conn);
                 DataTable dt = new DataTable();
@@ -86,7 +74,6 @@ namespace _240795P_EvanLim
             }
         }
 
-        // --- FIXED FEATURE: CRUD (CREATE) ---
         protected void btnAdd_Click(object sender, EventArgs e)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
