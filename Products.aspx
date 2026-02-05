@@ -12,12 +12,18 @@
                 <asp:ListItem Text="All Categories" Value="" />
                 <asp:ListItem Text="Instruments" Value="Instruments" />
                 <asp:ListItem Text="Accessories" Value="Accessories" />
+                <asp:ListItem Text="Audio Equipment" Value="Audio Equipment" />
             </asp:DropDownList>
         </div>
         <div class="col-md-2">
             <asp:Button ID="btnFilter" runat="server" Text="Filter" CssClass="btn btn-primary" OnClick="btnFilter_Click" />
         </div>
     </div>
+
+    <asp:Panel ID="pnlNoResults" runat="server" Visible="false" CssClass="alert alert-warning text-center">
+        <h4>No results found for your search.</h4>
+        <p>Try checking your spelling or use different keywords.</p>
+    </asp:Panel>
 
     <div class="row">
         <asp:Repeater ID="rptProducts" runat="server" OnItemCommand="rptProducts_ItemCommand">

@@ -43,8 +43,21 @@ namespace _240795P_EvanLim
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
-                rptProducts.DataSource = dt;
-                rptProducts.DataBind();
+                if (dt.Rows.Count == 0)
+                {
+                    // No Items Found
+                    rptProducts.Visible = false;
+                    pnlNoResults.Visible = true;
+                }
+                else
+                {
+                    // Items found
+                    rptProducts.Visible = true;
+                    pnlNoResults.Visible = false;
+
+                    rptProducts.DataSource = dt;
+                    rptProducts.DataBind();
+                }
             }
         }
 
@@ -57,14 +70,12 @@ namespace _240795P_EvanLim
         {
             if (e.CommandName == "AddToCart")
             {
-                // Simple Session-based Cart logic
                 List<string> cart = Session["Cart"] as List<string>;
                 if (cart == null) cart = new List<string>();
 
                 cart.Add(e.CommandArgument.ToString());
                 Session["Cart"] = cart;
 
-                // Optional: Show alert
                 Response.Write("<script>alert('Item added to cart!');</script>");
             }
         }
