@@ -131,7 +131,7 @@ namespace _240795P_EvanLim
                     transaction.Commit();
 
                     ClientScript.RegisterStartupScript(this.GetType(), "alert",
-                        "alert('Payment Successful! Order #" + newOrderId.ToString().Substring(0, 8) + " created.'); window.location='Default.aspx';",
+                        "alert('Payment Successful! Order #" + newOrderId.ToString().Substring(0, 8) + " created.'); window.location='/';",
                         true);
                 }
                 catch (Exception ex)
