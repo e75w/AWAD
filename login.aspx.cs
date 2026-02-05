@@ -18,27 +18,23 @@ namespace _240795P_EvanLim
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // Requirement: Authentication
-                // NOTE: In production, ALWAYS compare Hashed passwords, never plain text.
                 string sql = "SELECT Id, Role FROM Users WHERE Email = @Email AND Password = @Password";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
-                cmd.Parameters.AddWithValue("@Password", txtPass.Text); // Assuming plain text for simplicity of snippet
+                cmd.Parameters.AddWithValue("@Password", txtPass.Text);
 
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    // Set Session
                     Session["UserId"] = reader["Id"];
-                    Session["Role"] = reader["Role"]; // 'Admin' or 'User'
+                    Session["Role"] = reader["Role"];
 
-                    // Requirement: MFA Check (Mock logic)
                     if (RequiresMFA(txtEmail.Text))
                     {
-                        Response.Redirect("mfa_verify.aspx"); // You would create this page for the code check
+                        Response.Redirect("mfa_verify.aspx");
                     }
                     else
                     {
@@ -54,8 +50,7 @@ namespace _240795P_EvanLim
 
         private bool RequiresMFA(string email)
         {
-            // Logic to check if user has MFA enabled in DB
-            return false; // Default false for basic flow
+            return false; // Default false
         }
     }
 }
