@@ -71,9 +71,7 @@ namespace _240795P_EvanLim
 
         protected void btnCheckout_Click(object sender, EventArgs e)
         {
-            // Future Logic: Move items from 'CartItems' to an 'OrderHistory' table
-            // For now, we can just show a success message.
-            ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Proceeding to payment...');", true);
+            Response.Redirect("Payment");
         }
     }
 }
