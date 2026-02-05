@@ -37,12 +37,18 @@
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
                 
-                        <img src='<%# Eval("ImageUrl") %>' class="card-img-top" alt="Product Image" style="height: 200px; object-fit: contain; padding: 10px;">
-                
+                        <a href="ProductDetails.aspx?id=<%# Eval("Id") %>">
+                            <img src='<%# Eval("ImageUrl") %>' class="card-img-top" alt="Product Image" style="height: 200px; object-fit: contain; padding: 10px;">
+                        </a>
+
                         <div class="card-body">
-                            <h5 class="card-title"><%# Eval("Name") %></h5>
+                            <h5 class="card-title">
+                                <a href="ProductDetails.aspx?id=<%# Eval("Id") %>" style="text-decoration:none; color:inherit;">
+                                    <%# Eval("Name") %>
+                                </a>
+                            </h5>
+    
                             <h6 class="card-subtitle mb-2 text-muted">Price: $<%# Eval("Price", "{0:N2}") %></h6>
-                    
                             <p class="card-text text-truncate"><%# Eval("Description") %></p>
                         </div>
 

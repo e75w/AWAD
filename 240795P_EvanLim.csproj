@@ -76,6 +76,7 @@
     <Content Include="Register.aspx" />
     <Content Include="MFA.aspx" />
     <Content Include="Payment.aspx" />
+    <Content Include="ProductDetails.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Masterpage.Master.cs">
@@ -141,6 +142,13 @@
     </Compile>
     <Compile Include="Payment.aspx.designer.cs">
       <DependentUpon>Payment.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProductDetails.aspx.cs">
+      <DependentUpon>ProductDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProductDetails.aspx.designer.cs">
+      <DependentUpon>ProductDetails.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
