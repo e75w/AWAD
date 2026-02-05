@@ -13,7 +13,7 @@ namespace _240795P_EvanLim
     public partial class Register : System.Web.UI.Page
     {
         // Connection string
-        string connStr = ConfigurationManager.ConnectionStrings["MyDbConn"].ConnectionString;
+        string connStr = ConfigurationManager.ConnectionStrings["MainDbConnection"].ConnectionString;
 
         protected void btnRegister_Click(object sender, EventArgs e)
         {
