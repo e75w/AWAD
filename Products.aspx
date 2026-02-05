@@ -5,18 +5,23 @@
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" placeholder="Search..."></asp:TextBox>
-        </div>
-        <div class="col-md-3">
-            <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-select">
-                <asp:ListItem Text="All Categories" Value="" />
-                <asp:ListItem Text="Instruments" Value="Instruments" />
-                <asp:ListItem Text="Accessories" Value="Accessories" />
-                <asp:ListItem Text="Audio Equipment" Value="Audio Equipment" />
+            <asp:Label runat="server" Text="Category:" AssociatedControlID="ddlCategory" CssClass="form-label" />
+            <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-select" 
+                AutoPostBack="true" OnSelectedIndexChanged="ddlCategory_SelectedIndexChanged">
+                <asp:ListItem Value="All" Text="All Categories" />
+                <asp:ListItem Value="Instruments" Text="Instruments" />
+                <asp:ListItem Value="Accessories" Text="Accessories" />
+                <asp:ListItem Value="Audio Equipment" Text="Audio Equipment" />
             </asp:DropDownList>
         </div>
-        <div class="col-md-2">
-            <asp:Button ID="btnFilter" runat="server" Text="Filter" CssClass="btn btn-primary" OnClick="btnFilter_Click" />
+
+        <div class="col-md-6">
+            <asp:Label runat="server" Text="Search:" AssociatedControlID="txtSearch" CssClass="form-label" />
+            <div class="input-group">
+                <asp:TextBox ID="txtSearch" runat="server" CssClass="form-control" Placeholder="Search products..." />
+                <asp:Button ID="btnSearch" runat="server" Text="Search" CssClass="btn btn-primary" OnClick="btnSearch_Click" />
+                <asp:Button ID="btnReset" runat="server" Text="Reset" CssClass="btn btn-secondary" OnClick="btnReset_Click" />
+            </div>
         </div>
     </div>
 

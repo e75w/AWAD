@@ -22,19 +22,32 @@ namespace _240795P_EvanLim
             }
         }
 
-        private void LoadProducts(string search = "", string category = "")
+        private void LoadProducts()
         {
+            string searchTerm = txtSearch.Text.Trim();
+            string category = ddlCategory.SelectedValue;
+
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "SELECT * FROM Products WHERE Name LIKE @Search";
-                if (!string.IsNullOrEmpty(category))
+                string sql = "SELECT * FROM Products WHERE 1=1";
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    sql += " AND (Name LIKE @Search OR Description LIKE @Search)";
+                }
+
+                if (category != "All")
                 {
                     sql += " AND Category = @Category";
                 }
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Search", "%" + search + "%");
-                if (!string.IsNullOrEmpty(category))
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    cmd.Parameters.AddWithValue("@Search", "%" + searchTerm + "%");
+                }
+                if (category != "All")
                 {
                     cmd.Parameters.AddWithValue("@Category", category);
                 }
@@ -43,27 +56,37 @@ namespace _240795P_EvanLim
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
+                // check for if no results found
                 if (dt.Rows.Count == 0)
                 {
-                    // No Items Found
                     rptProducts.Visible = false;
                     pnlNoResults.Visible = true;
                 }
                 else
                 {
-                    // Items found
                     rptProducts.Visible = true;
                     pnlNoResults.Visible = false;
-
                     rptProducts.DataSource = dt;
                     rptProducts.DataBind();
                 }
             }
         }
 
-        protected void btnFilter_Click(object sender, EventArgs e)
+        protected void btnSearch_Click(object sender, EventArgs e)
         {
-            LoadProducts(txtSearch.Text.Trim(), ddlCategory.SelectedValue);
+            LoadProducts();
+        }
+
+        protected void ddlCategory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadProducts();
+        }
+
+        protected void btnReset_Click(object sender, EventArgs e)
+        {
+            txtSearch.Text = "";
+            ddlCategory.SelectedValue = "All";
+            LoadProducts();
         }
 
         protected void rptProducts_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
