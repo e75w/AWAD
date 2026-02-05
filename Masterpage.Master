@@ -26,7 +26,7 @@
                     <a class="nav-link" href="Products">Shop</a>
     
                     <% if (Session["Role"] != null && Session["Role"].ToString() == "Admin") { %>
-                         <a class="nav-link text-danger fw-bold" href="admin.aspx">Admin Panel</a>
+                         <a class="nav-link text-danger fw-bold" href="Admin">Admin Panel</a>
                     <% } %>
 
                     <% if (Session["UserId"] == null) { %>
