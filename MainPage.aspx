@@ -19,5 +19,5 @@
 
     <h2>Welcome to MusicStore</h2>
     <p>Check out our latest instruments and deals.</p>
-    <a href="products.aspx" class="btn btn-primary">View Full Catalogue</a>
+    <a href="Products" class="btn btn-primary">View Full Catalogue</a>
 </asp:Content>
