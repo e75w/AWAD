@@ -33,19 +33,18 @@ namespace _240795P_EvanLim
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // SQL QUERY EXPLAINED:
-                // We JOIN CartItems with Products to get the Name, Image, and Price.
-                // We calculate (Price * Quantity) to get the "TotalItemPrice" for that row.
+                // UPDATED SQL: Added 'c.ProductId' at the start
                 string sql = @"
-                    SELECT 
-                        p.Name, 
-                        p.ImageUrl, 
-                        p.Price, 
-                        c.Quantity, 
-                        (p.Price * c.Quantity) AS TotalItemPrice 
-                    FROM CartItems c
-                    INNER JOIN Products p ON c.ProductId = p.Id
-                    WHERE c.UserId = @UserId";
+                              SELECT 
+                                  c.ProductId, 
+                                  p.Name, 
+                                  p.ImageUrl, 
+                                  p.Price, 
+                                  c.Quantity, 
+                                  (p.Price * c.Quantity) AS TotalItemPrice 
+                              FROM CartItems c
+                              INNER JOIN Products p ON c.ProductId = p.Id
+                              WHERE c.UserId = @UserId";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
@@ -54,22 +53,19 @@ namespace _240795P_EvanLim
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
-                // Bind to GridView
                 gvCart.DataSource = dt;
                 gvCart.DataBind();
 
-                // Calculate Grand Total manually from the DataTable
                 decimal grandTotal = 0;
                 foreach (DataRow row in dt.Rows)
                 {
                     grandTotal += Convert.ToDecimal(row["TotalItemPrice"]);
                 }
-
                 lblGrandTotal.Text = "$" + grandTotal.ToString("N2");
             }
         }
 
-        protected void gvCart_RowCommand(object sender, GridViewCommandEventArgs e)
+        protected void gvCart_Remove(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName == "RemoveItem")
             {
@@ -90,8 +86,6 @@ namespace _240795P_EvanLim
                 }
 
                 LoadCart();
-
-                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Item removed.');", true);
             }
         }
 

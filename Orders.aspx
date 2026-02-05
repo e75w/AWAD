@@ -10,9 +10,14 @@
                       CssClass="table table-striped table-bordered align-middle" 
                       EmptyDataText="Your cart is empty."
                       DataKeyNames="ProductId"
-                      OnRowCommand="gvCart_RowCommand">
-    
+                      OnRowCommand="gvCart_Remove">
             <Columns>
+                <asp:TemplateField HeaderText="Image">
+                    <ItemTemplate>
+                        <img src='<%# Eval("ImageUrl") %>' width="80" height="80" style="object-fit:cover;" />
+                    </ItemTemplate>
+                </asp:TemplateField>
+
                 <asp:BoundField DataField="Name" HeaderText="Product Name" />
                 <asp:BoundField DataField="Price" HeaderText="Price ($)" DataFormatString="{0:N2}" />
                 <asp:BoundField DataField="Quantity" HeaderText="Qty" />
@@ -24,7 +29,7 @@
                             CommandName="RemoveItem" 
                             CommandArgument='<%# Container.DataItemIndex %>'
                             CssClass="btn btn-danger btn-sm"
-                            OnClientClick="return confirm('Are you sure you want to remove this item?');" />
+                            OnClientClick="return confirm('Remove this item from cart?');" />
                     </ItemTemplate>
                 </asp:TemplateField>
 
