@@ -13,6 +13,13 @@
                 <asp:TextBox ID="txtPass" runat="server" CssClass="form-control" TextMode="Password"></asp:TextBox>
             </div>
             <asp:Button ID="btnLogin" runat="server" Text="Login" CssClass="btn btn-primary w-100" OnClick="btnLogin_Click" />
+            
+            <!-- Register -->
+            <div class="mt-3 text-center">
+                <p>Don't have an account?</p>
+                <a href="Register" class="btn btn-outline-secondary w-100">Create New Account</a>
+            </div>
+
             <asp:Label ID="lblError" runat="server" ForeColor="Red" CssClass="mt-2"></asp:Label>
         </div>
     </div>

@@ -89,17 +89,55 @@ namespace _240795P_EvanLim
             LoadProducts();
         }
 
+        private void AddToCart(string productId)
+        {
+            string userId = Session["UserId"].ToString();
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string checkSql = "SELECT COUNT(*) FROM CartItems WHERE UserId = @UserId AND ProductId = @ProductId";
+                SqlCommand checkCmd = new SqlCommand(checkSql, conn);
+                checkCmd.Parameters.AddWithValue("@UserId", userId);
+                checkCmd.Parameters.AddWithValue("@ProductId", productId);
+
+                int count = (int)checkCmd.ExecuteScalar();
+
+                if (count > 0)
+                {
+                    string updateSql = "UPDATE CartItems SET Quantity = Quantity + 1 WHERE UserId = @UserId AND ProductId = @ProductId";
+                    SqlCommand updateCmd = new SqlCommand(updateSql, conn);
+                    updateCmd.Parameters.AddWithValue("@UserId", userId);
+                    updateCmd.Parameters.AddWithValue("@ProductId", productId);
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    string insertSql = "INSERT INTO CartItems (Id, UserId, ProductId, Quantity) VALUES (NEWID(), @UserId, @ProductId, 1)";
+                    SqlCommand insertCmd = new SqlCommand(insertSql, conn);
+                    insertCmd.Parameters.AddWithValue("@UserId", userId);
+                    insertCmd.Parameters.AddWithValue("@ProductId", productId);
+                    insertCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         protected void rptProducts_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
         {
+            if (Session["UserId"] == null)
+            {
+                Response.Redirect("login");
+                return;
+            }
+
             if (e.CommandName == "AddToCart")
             {
-                List<string> cart = Session["Cart"] as List<string>;
-                if (cart == null) cart = new List<string>();
+                string productId = e.CommandArgument.ToString();
 
-                cart.Add(e.CommandArgument.ToString());
-                Session["Cart"] = cart;
+                AddToCart(productId);
 
-                Response.Write("<script>alert('Item added to cart!');</script>");
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Item added to cart!');", true);
             }
         }
     }
