@@ -43,7 +43,7 @@
 
                         <div class="card-body">
                             <h5 class="card-title">
-                                <a href="ProductDetails.aspx?id=<%# Eval("Id") %>" style="text-decoration:none; color:inherit;">
+                                <a href="ProductDetails?id=<%# Eval("Id") %>" style="text-decoration:none; color:inherit;">
                                     <%# Eval("Name") %>
                                 </a>
                             </h5>
