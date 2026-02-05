@@ -34,11 +34,11 @@ namespace _240795P_EvanLim
 
                     if (RequiresMFA(txtEmail.Text))
                     {
-                        Response.Redirect("mfa_verify.aspx");
+                        Response.Redirect("MFA");
                     }
                     else
                     {
-                        Response.Redirect("mainPg.aspx");
+                        Response.Redirect("/");
                     }
                 }
                 else

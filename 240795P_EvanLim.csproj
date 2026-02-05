@@ -74,6 +74,7 @@
     <Content Include="login.aspx" />
     <Content Include="Admin.aspx" />
     <Content Include="Register.aspx" />
+    <Content Include="MFA.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Masterpage.Master.cs">
@@ -125,6 +126,13 @@
     </Compile>
     <Compile Include="Register.aspx.designer.cs">
       <DependentUpon>Register.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MFA.aspx.cs">
+      <DependentUpon>MFA.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MFA.aspx.designer.cs">
+      <DependentUpon>MFA.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
