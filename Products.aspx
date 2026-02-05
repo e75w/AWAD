@@ -33,17 +33,21 @@
     <div class="row">
         <asp:Repeater ID="rptProducts" runat="server" OnItemCommand="rptProducts_ItemCommand">
             <ItemTemplate>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <img src='<%# Eval("ImageUrl") %>' class="card-img-top" alt="Product Image" style="height:200px; object-fit:contain;">
-                        <div class="card-body">
-                            <h5 class="card-title"><%# Eval("Name") %></h5>
-                            <p class="card-text">$<%# Eval("Price") %></p>
-                            <p class="text-muted"><%# Eval("Category") %></p>
-                            
-                            <asp:Button ID="btnBuy" runat="server" Text="Add to Cart" 
-                                CommandName="AddToCart" CommandArgument='<%# Eval("Id") %>' 
-                                CssClass="btn btn-success" />
+                <div class="card mb-3">
+                    <div class="card-footer">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <label>Qty:</label>
+                            </div>
+                            <div class="col-auto">
+                                <asp:TextBox ID="txtQuantity" runat="server" TextMode="Number" Text="1" min="1" max="99" CssClass="form-control form-control-sm" Width="60px"></asp:TextBox>
+                            </div>
+                            <div class="col">
+                                <asp:Button ID="btnAddToCart" runat="server" Text="Add to Cart" 
+                                    CommandName="AddToCart" 
+                                    CommandArgument='<%# Eval("Id") %>' 
+                                    CssClass="btn btn-primary btn-sm w-100" />
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -89,7 +89,7 @@ namespace _240795P_EvanLim
             LoadProducts();
         }
 
-        private void AddToCart(string productId)
+        private void AddToCart(string productId, int qty)
         {
             string userId = Session["UserId"].ToString();
 
@@ -97,6 +97,7 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
+                // Check if item exists
                 string checkSql = "SELECT COUNT(*) FROM CartItems WHERE UserId = @UserId AND ProductId = @ProductId";
                 SqlCommand checkCmd = new SqlCommand(checkSql, conn);
                 checkCmd.Parameters.AddWithValue("@UserId", userId);
@@ -106,38 +107,44 @@ namespace _240795P_EvanLim
 
                 if (count > 0)
                 {
-                    string updateSql = "UPDATE CartItems SET Quantity = Quantity + 1 WHERE UserId = @UserId AND ProductId = @ProductId";
+                    string updateSql = "UPDATE CartItems SET Quantity = Quantity + @Qty WHERE UserId = @UserId AND ProductId = @ProductId";
                     SqlCommand updateCmd = new SqlCommand(updateSql, conn);
                     updateCmd.Parameters.AddWithValue("@UserId", userId);
                     updateCmd.Parameters.AddWithValue("@ProductId", productId);
+                    updateCmd.Parameters.AddWithValue("@Qty", qty);
                     updateCmd.ExecuteNonQuery();
                 }
                 else
                 {
-                    string insertSql = "INSERT INTO CartItems (Id, UserId, ProductId, Quantity) VALUES (NEWID(), @UserId, @ProductId, 1)";
+                    string insertSql = "INSERT INTO CartItems (Id, UserId, ProductId, Quantity) VALUES (NEWID(), @UserId, @ProductId, @Qty)";
                     SqlCommand insertCmd = new SqlCommand(insertSql, conn);
                     insertCmd.Parameters.AddWithValue("@UserId", userId);
                     insertCmd.Parameters.AddWithValue("@ProductId", productId);
+                    insertCmd.Parameters.AddWithValue("@Qty", qty);
                     insertCmd.ExecuteNonQuery();
                 }
             }
         }
 
-        protected void rptProducts_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
+        protected void rptProducts_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             if (Session["UserId"] == null)
             {
-                Response.Redirect("login");
+                Response.Redirect("login.aspx");
                 return;
             }
 
             if (e.CommandName == "AddToCart")
             {
                 string productId = e.CommandArgument.ToString();
+                TextBox txtQty = (TextBox)e.Item.FindControl("txtQuantity");
 
-                AddToCart(productId);
+                int quantity = 1;
+                int.TryParse(txtQty.Text, out quantity);
 
-                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Item added to cart!');", true);
+                AddToCart(productId, quantity);
+
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Added " + quantity + " item(s) to cart!');", true);
             }
         }
     }
