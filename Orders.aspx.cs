@@ -12,7 +12,7 @@ namespace _240795P_EvanLim
 {
     public partial class Orders : System.Web.UI.Page
     {
-        string connStr = ConfigurationManager.ConnectionStrings["MyDbConn"].ConnectionString;
+        string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
