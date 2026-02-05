@@ -10,7 +10,7 @@ using System.Configuration;
 
 namespace _240795P_EvanLim
 {
-    public partial class products : System.Web.UI.Page
+    public partial class Products : System.Web.UI.Page
     {
         string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 

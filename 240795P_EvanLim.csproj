@@ -72,6 +72,7 @@
     <Content Include="Products.aspx" />
     <Content Include="Orders.aspx" />
     <Content Include="login.aspx" />
+    <Content Include="Admin.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Masterpage.Master.cs">
@@ -109,6 +110,13 @@
     </Compile>
     <Compile Include="login.aspx.designer.cs">
       <DependentUpon>login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin.aspx.cs">
+      <DependentUpon>Admin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin.aspx.designer.cs">
+      <DependentUpon>Admin.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

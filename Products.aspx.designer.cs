@@ -11,7 +11,7 @@ namespace _240795P_EvanLim
 {
 
 
-    public partial class WebForm2
+    public partial class Products
     {
 
         /// <summary>
