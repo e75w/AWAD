@@ -1,138 +1,156 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data;
-using System.Data.SqlClient;
-using System.Configuration;
+using System.Xml.Linq;
 
 namespace _240795P_EvanLim
 {
     public partial class Admin : System.Web.UI.Page
     {
+        // Using MainDBConnection as requested
         string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Security Check: Only allow Admins (Optional but recommended)
+            // 1. AUTHORISATION (Fixed Feature: Role Security)
             if (Session["Role"] == null || Session["Role"].ToString() != "Admin")
             {
-                // Response.Redirect("login.aspx"); // Uncomment to lock this page
+                // If not admin, send them home
+                Response.Redirect("/");
             }
 
             if (!IsPostBack)
             {
                 LoadAnalytics();
-                LoadProducts();
+                LoadInventory();
             }
         }
 
-        // --- ANALYTICS LOGIC ---
+        // --- COMPLEX FEATURE: ANALYTICS ---
         private void LoadAnalytics()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                // 1. Get Total Revenue
-                SqlCommand cmdRevenue = new SqlCommand("SELECT SUM(TotalAmount) FROM Orders", conn);
-                object resultRevenue = cmdRevenue.ExecuteScalar();
-                lblRevenue.Text = resultRevenue != DBNull.Value ? string.Format("{0:C}", resultRevenue) : "$0.00";
 
-                // 2. Get Total Orders Count
-                SqlCommand cmdCount = new SqlCommand("SELECT COUNT(*) FROM Orders", conn);
-                lblOrdersCount.Text = cmdCount.ExecuteScalar().ToString();
+                // Metric 1: Total Revenue
+                string revenueSql = "SELECT SUM(TotalAmount) FROM Orders";
+                SqlCommand cmdRev = new SqlCommand(revenueSql, conn);
+                object revResult = cmdRev.ExecuteScalar();
+                decimal totalRev = (revResult != DBNull.Value && revResult != null) ? Convert.ToDecimal(revResult) : 0;
+                lblTotalRevenue.Text = totalRev.ToString("C"); // Formats as Currency ($)
+
+                // Metric 2: Total Orders
+                string countSql = "SELECT COUNT(*) FROM Orders";
+                SqlCommand cmdCount = new SqlCommand(countSql, conn);
+                int totalOrders = (int)cmdCount.ExecuteScalar();
+                lblTotalOrders.Text = totalOrders.ToString();
+
+                // Metric 3: Top Selling Product
+                // This complex query joins OrderDetails with Products to find the most popular item
+                string topSql = @"
+                    SELECT TOP 1 p.Name 
+                    FROM OrderDetails od
+                    JOIN Products p ON od.ProductId = p.Id
+                    GROUP BY p.Name
+                    ORDER BY SUM(od.Quantity) DESC";
+
+                SqlCommand cmdTop = new SqlCommand(topSql, conn);
+                object topResult = cmdTop.ExecuteScalar();
+                lblTopProduct.Text = (topResult != null) ? topResult.ToString() : "No Sales Yet";
             }
         }
 
-        // --- CRUD READ LOGIC ---
-        private void LoadProducts()
+        // --- FIXED FEATURE: CRUD (READ) ---
+        private void LoadInventory()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Products", conn);
+                string sql = "SELECT * FROM Products ORDER BY DateAdded DESC"; // Show newest first
+
+                // Note: If you don't have a DateAdded column yet, just use: ORDER BY Name
+                // string sql = "SELECT * FROM Products ORDER BY Name";
+
+                SqlDataAdapter da = new SqlDataAdapter(sql, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
-                gvProducts.DataSource = dt;
-                gvProducts.DataBind();
+
+                gvAdminProducts.DataSource = dt;
+                gvAdminProducts.DataBind();
             }
         }
 
-        // --- CRUD CREATE LOGIC ---
+        // --- FIXED FEATURE: CRUD (CREATE) ---
         protected void btnAdd_Click(object sender, EventArgs e)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "INSERT INTO Products (Id, Name, Price, Category, ImageUrl) VALUES (NEWID(), @Name, @Price, @Category, @Img)";
+                // Insert query
+                string sql = @"INSERT INTO Products (Id, Name, Price, Category, Description, ImageUrl) 
+                               VALUES (NEWID(), @Name, @Price, @Category, @Desc, @Img)";
+
                 SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Name", txtNewName.Text);
-                cmd.Parameters.AddWithValue("@Price", Convert.ToDecimal(txtNewPrice.Text));
-                cmd.Parameters.AddWithValue("@Category", ddlNewCat.SelectedValue);
-                cmd.Parameters.AddWithValue("@Img", txtNewImg.Text);
+                cmd.Parameters.AddWithValue("@Name", txtName.Text.Trim());
+                cmd.Parameters.AddWithValue("@Price", txtPrice.Text.Trim());
+                cmd.Parameters.AddWithValue("@Category", ddlCategory.SelectedValue);
+                cmd.Parameters.AddWithValue("@Desc", txtDesc.Text.Trim());
+                cmd.Parameters.AddWithValue("@Img", txtImage.Text.Trim());
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }
-            LoadProducts(); // Refresh Grid
+
+            // Reset UI
+            txtName.Text = "";
+            txtPrice.Text = "";
+            txtDesc.Text = "";
+            txtImage.Text = "";
+
+            lblMessage.Text = "Product added successfully!";
+            lblMessage.Visible = true;
+            lblMessage.CssClass = "alert alert-success d-block";
+
+            LoadInventory(); // Refresh the grid immediately
         }
 
-        // --- CRUD UPDATE LOGIC ---
-        protected void gvProducts_RowUpdating(object sender, System.Web.UI.WebControls.GridViewUpdateEventArgs e)
+        // --- FIXED FEATURE: CRUD (DELETE) ---
+        protected void gvAdminProducts_RowCommand(object sender, System.Web.UI.WebControls.GridViewCommandEventArgs e)
         {
-            // Get the ID of the row being edited
-            string id = gvProducts.DataKeys[e.RowIndex].Value.ToString();
-
-            // Get new values from the textboxes in the GridView
-            string name = ((System.Web.UI.WebControls.TextBox)gvProducts.Rows[e.RowIndex].Cells[1].Controls[0]).Text;
-            string price = ((System.Web.UI.WebControls.TextBox)gvProducts.Rows[e.RowIndex].Cells[2].Controls[0]).Text;
-            string category = ((System.Web.UI.WebControls.TextBox)gvProducts.Rows[e.RowIndex].Cells[3].Controls[0]).Text;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
+            if (e.CommandName == "DeleteProduct")
             {
-                string sql = "UPDATE Products SET Name=@Name, Price=@Price, Category=@Category WHERE Id=@Id";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Name", name);
-                cmd.Parameters.AddWithValue("@Price", Convert.ToDecimal(price));
-                cmd.Parameters.AddWithValue("@Category", category);
-                cmd.Parameters.AddWithValue("@Id", id);
+                int rowIndex = Convert.ToInt32(e.CommandArgument);
+                string productId = gvAdminProducts.DataKeys[rowIndex].Value.ToString();
 
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    conn.Open();
+
+                    // Note: In a real app, you can't delete a product if it's in a past Order (Foreign Key error).
+                    // We wrap this in a try/catch to warn the Admin.
+                    try
+                    {
+                        string sql = "DELETE FROM Products WHERE Id = @Id";
+                        SqlCommand cmd = new SqlCommand(sql, conn);
+                        cmd.Parameters.AddWithValue("@Id", productId);
+                        cmd.ExecuteNonQuery();
+
+                        LoadInventory(); // Success: Refresh grid
+                    }
+                    catch (SqlException)
+                    {
+                        // This handles the Foreign Key constraint error
+                        ClientScript.RegisterStartupScript(this.GetType(), "alert",
+                            "alert('Cannot delete this product because it has been bought by customers. It is part of the Sales History.');",
+                            true);
+                    }
+                }
             }
-
-            gvProducts.EditIndex = -1; // Exit edit mode
-            LoadProducts();
-        }
-
-        // --- CRUD DELETE LOGIC ---
-        protected void gvProducts_RowDeleting(object sender, System.Web.UI.WebControls.GridViewDeleteEventArgs e)
-        {
-            string id = gvProducts.DataKeys[e.RowIndex].Value.ToString();
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                string sql = "DELETE FROM Products WHERE Id=@Id";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Id", id);
-
-                conn.Open();
-                cmd.ExecuteNonQuery();
-            }
-            LoadProducts();
-        }
-
-        // Helper: Cancel Edit Mode
-        protected void gvProducts_RowEditing(object sender, System.Web.UI.WebControls.GridViewEditEventArgs e)
-        {
-            gvProducts.EditIndex = e.NewEditIndex;
-            LoadProducts();
-        }
-
-        protected void gvProducts_RowCancelingEdit(object sender, System.Web.UI.WebControls.GridViewCancelEditEventArgs e)
-        {
-            gvProducts.EditIndex = -1;
-            LoadProducts();
         }
     }
 }
