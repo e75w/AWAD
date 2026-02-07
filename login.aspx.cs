@@ -52,26 +52,36 @@ namespace _240795P_EvanLim
 
                 if (reader.Read())
                 {
-                    Session["TempUserId"] = reader["Id"];
-                    Session["TempRole"] = reader["Role"];
+                    bool isMfaEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
 
-                    bool isAppEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
-
-                    if (isAppEnabled)
+                    if (isMfaEnabled)
                     {
-                        Session["AuthMode"] = "App";
+                        Session["TempUserId"] = reader["Id"];
+                        Session["TempRole"] = reader["Role"];
+                        Session["TempEmail"] = reader["Email"].ToString();
+
+                        if (reader["TwoFactorSecret"] != DBNull.Value && !string.IsNullOrEmpty(reader["TwoFactorSecret"].ToString()))
+                        {
+                            Session["AuthMode"] = "App";
+                        }
+                        else
+                        {
+                            Session["AuthMode"] = "Email";
+
+                            string otp = new Random().Next(100000, 999999).ToString();
+                            Session["OTP"] = otp;
+                            SendOTPEmail(reader["Email"].ToString(), otp);
+                        }
+
                         Response.Redirect("MFA.aspx");
                     }
                     else
                     {
-                        Session["AuthMode"] = "Email";
 
-                        Random rand = new Random();
-                        string otp = rand.Next(100000, 999999).ToString();
-                        Session["OTP"] = otp;
-                        SendOTPEmail(reader["Email"].ToString(), otp);
+                        Session["UserId"] = reader["Id"];
+                        Session["Role"] = reader["Role"];
 
-                        Response.Redirect("MFA.aspx");
+                        Response.Redirect("/");
                     }
                 }
                 else
