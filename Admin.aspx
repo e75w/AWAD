@@ -86,6 +86,12 @@
                         </div>
 
                         <asp:Button ID="btnAdd" runat="server" Text="Add Product" CssClass="btn btn-success w-100" OnClick="btnAdd_Click" ValidationGroup="AddGroup" />
+                        <asp:HiddenField ID="hfProductId" runat="server" /> 
+                        <asp:Button ID="btnUpdate" runat="server" Text="Save Changes" CssClass="btn btn-primary w-100 mt-2" 
+                            OnClick="btnUpdate_Click" Visible="false" ValidationGroup="AddGroup" />
+
+                        <asp:Button ID="btnCancel" runat="server" Text="Cancel Editing" CssClass="btn btn-secondary w-100 mt-2" 
+                            OnClick="btnCancel_Click" Visible="false" CausesValidation="false" />
                     </div>
                 </div>
             </div>
@@ -129,9 +135,6 @@
                                     </asp:TemplateField>
                                 </Columns>
                             </asp:GridView>
-
-                            <asp:Button ID="btnUpdate" runat="server" Text="Save Changes" CssClass="btn btn-primary w-100 mt-2" OnClick="btnUpdate_Click" Visible="false" />
-                            <asp:Button ID="btnCancel" runat="server" Text="Cancel Editing" CssClass="btn btn-secondary w-100 mt-2" OnClick="btnCancel_Click" Visible="false" />                        </div>
                     </div>
                 </div>
             </div>
