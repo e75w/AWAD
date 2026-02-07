@@ -3,7 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-5">
         
-        <a href="products.aspx" class="btn btn-outline-secondary mb-4">&larr; Back to Shop</a>
+        <a href="Products" class="btn btn-outline-secondary mb-4">&larr; Back to Shop</a>
 
         <div class="row">
             <div class="col-md-6 text-center">

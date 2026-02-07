@@ -13,7 +13,7 @@ namespace _240795P_EvanLim
         {
             Session.Clear();
             Session.Abandon();
-            Response.Redirect("login.aspx");
+            Response.Redirect("login");
         }
     }
 }

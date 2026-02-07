@@ -37,7 +37,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
                 
-                        <a href="ProductDetails.aspx?id=<%# Eval("Id") %>">
+                        <a href="ProductDetails?id=<%# Eval("Id") %>">
                             <img src='<%# Eval("ImageUrl") %>' class="card-img-top" alt="Product Image" style="height: 200px; object-fit: contain; padding: 10px;">
                         </a>
 

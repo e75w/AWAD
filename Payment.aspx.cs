@@ -18,7 +18,7 @@ namespace _240795P_EvanLim
         {
             if (Session["UserId"] == null)
             {
-                Response.Redirect("login.aspx");
+                Response.Redirect("login");
             }
 
             if (!IsPostBack)
@@ -55,7 +55,7 @@ namespace _240795P_EvanLim
             // If total is 0, they shouldn't be here
             if (total == 0)
             {
-                Response.Redirect("products.aspx");
+                Response.Redirect("Products");
             }
 
             lblTotalAmount.Text = "$" + total.ToString("N2");

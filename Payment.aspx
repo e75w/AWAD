@@ -45,7 +45,7 @@
                         <asp:Button ID="btnPay" runat="server" Text="Confirm Payment" CssClass="btn btn-success w-100 btn-lg" OnClick="btnPay_Click" />
                         
                         <div class="mt-3 text-center">
-                            <a href="orders.aspx" class="text-secondary">Back to Cart</a>
+                            <a href="Orders" class="text-secondary">Back to Cart</a>
                         </div>
                     </div>
                 </div>

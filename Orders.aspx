@@ -40,7 +40,7 @@
             <div class="col text-end">
                 <h4>Total Amount: <asp:Label ID="lblGrandTotal" runat="server" Text="$0.00" CssClass="text-primary"></asp:Label></h4>
                 
-                <a href="products.aspx" class="btn btn-secondary">Continue Shopping</a>
+                <a href="Products" class="btn btn-secondary">Continue Shopping</a>
                 <asp:Button ID="btnCheckout" runat="server" Text="Proceed to Checkout" CssClass="btn btn-success" OnClick="btnCheckout_Click" />
             </div>
         </div>
