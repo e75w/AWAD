@@ -21,21 +21,23 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="/">Home</a>
-                    <a class="nav-link" href="Products">Shop</a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav ms-auto">
+                        <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link" href="Products">Shop</a>
     
-                    <% if (Session["Role"] != null && Session["Role"].ToString() == "Admin") { %>
-                         <a class="nav-link text-danger fw-bold" href="Admin">Admin Panel</a>
-                    <% } %>
+                        <% if (Session["Role"] != null && Session["Role"].ToString() == "Admin") { %>
+                             <a class="nav-link text-danger fw-bold" href="Admin">Admin Panel</a>
+                        <% } %>
 
-                    <% if (Session["UserId"] == null) { %>
-                        <a class="nav-link" href="login">Login</a>
-                    <% } else { %>
-                        <a class="nav-link" href="Orders">Checkout</a>
-                        <asp:LinkButton ID="btnLogout" runat="server" CssClass="nav-link" OnClick="Logout_Click">Logout</asp:LinkButton>
-                    <% } %>
-
+                        <% if (Session["UserId"] == null) { %>
+                            <a class="nav-link" href="login">Login</a>
+                        <% } 
+                        else { %>
+                            <a class="nav-link" href="Orders">Checkout</a>
+                            <asp:LinkButton ID="btnLogout" runat="server" CssClass="nav-link" OnClick="Logout_Click">Logout</asp:LinkButton>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </nav>
