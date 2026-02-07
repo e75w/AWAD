@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Secure Payment" Language="C#" MasterPageFile="~/Masterpage.Master" AutoEventWireup="true" CodeBehind="Payment.aspx.cs" Inherits="_240795P_EvanLim.Payment" %>
+﻿<%@ Page Title="Payment" Language="C#" MasterPageFile="~/Masterpage.Master" AutoEventWireup="true" CodeBehind="Payment.aspx.cs" Inherits="_240795P_EvanLim.Payment" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-5">
@@ -6,7 +6,7 @@
             <div class="col-md-7">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h3 class="mb-0">Secure Checkout</h3>
+                        <h3 class="mb-0">Checkout</h3>
                     </div>
                     <div class="card-body">
                         
