@@ -115,23 +115,21 @@
 
                                     <asp:TemplateField HeaderText="Actions">
                                         <ItemTemplate>
-                                            <ItemTemplate>
-                                                <asp:Button ID="btnEdit" runat="server" Text="Edit" 
+                                            <asp:Button ID="btnEdit" runat="server" Text="Edit" 
                                                             CommandName="EditProduct" 
                                                             CommandArgument='<%# Container.DataItemIndex %>' 
                                                             CssClass="btn btn-warning btn-sm me-2" />
             
-                                                <asp:Button ID="btnDelete" runat="server" Text="Delete" 
+                                            <asp:Button ID="btnDelete" runat="server" Text="Delete" 
                                                     CommandName="DeleteProduct" 
                                                     CommandArgument='<%# Container.DataItemIndex %>'
                                                     CssClass="btn btn-danger btn-sm"
-                                                    OnClientClick="return confirm('WARNING: Deleting this product will remove it from the shop.');" />                                            </ItemTemplate>
+                                                    OnClientClick="return confirm('WARNING: Deleting this product will remove it from the shop.');" />
                                         </ItemTemplate>
                                     </asp:TemplateField>
                                 </Columns>
                             </asp:GridView>
 
-                            <asp:HiddenField ID="hfProductId" runat="server" /> <asp:Button ID="Button1" runat="server" Text="Add Product" CssClass="btn btn-success w-100" OnClick="btnAdd_Click" ValidationGroup="AddGroup" />
                             <asp:Button ID="btnUpdate" runat="server" Text="Save Changes" CssClass="btn btn-primary w-100 mt-2" OnClick="btnUpdate_Click" Visible="false" />
                             <asp:Button ID="btnCancel" runat="server" Text="Cancel Editing" CssClass="btn btn-secondary w-100 mt-2" OnClick="btnCancel_Click" Visible="false" />                        </div>
                     </div>
