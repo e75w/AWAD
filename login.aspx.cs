@@ -14,6 +14,26 @@ namespace _240795P_EvanLim
     {
         string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (Request.QueryString["mode"] == "auto_logout")
+            {
+                Session.Abandon();
+                Session.Clear();
+                Session.RemoveAll();
+
+                if (Request.Cookies[".ASPXAUTH"] != null)
+                {
+                    HttpCookie myCookie = new HttpCookie(".ASPXAUTH");
+                    myCookie.Expires = DateTime.Now.AddDays(-1d);
+                    Response.Cookies.Add(myCookie);
+                }
+
+                Response.End();
+                return;
+            }
+        }
+
         protected void btnLogin_Click(object sender, EventArgs e)
         {
             using (SqlConnection conn = new SqlConnection(connStr))

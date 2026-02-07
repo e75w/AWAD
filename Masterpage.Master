@@ -50,5 +50,29 @@
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        var isNavigating = false;
+
+        document.addEventListener('click', function (e) {
+            if (e.target.closest('a')) {
+                isNavigating = true;
+            }
+            if (e.target.closest('button') || e.target.closest('input[type="submit"]')) {
+                isNavigating = true;
+            }
+        });
+
+        document.addEventListener('submit', function () {
+            isNavigating = true;
+        });
+
+        window.addEventListener('beforeunload', function (e) {
+            if (!isNavigating) {
+                var logoutUrl = '<%= ResolveUrl("~/Login.aspx?mode=auto_logout") %>';
+                navigator.sendBeacon(logoutUrl);
+            }
+        });
+    </script>
 </body>
 </html>
