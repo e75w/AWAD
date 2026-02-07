@@ -31,6 +31,7 @@ namespace _240795P_EvanLim
 
         private void LoadAnalytics()
         {
+            // Quick Analytics
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
@@ -56,6 +57,28 @@ namespace _240795P_EvanLim
                 SqlCommand cmdTop = new SqlCommand(topSql, conn);
                 object topResult = cmdTop.ExecuteScalar();
                 lblTopProduct.Text = (topResult != null) ? topResult.ToString() : "No Sales Yet";
+            }
+
+            // Graphs n Charts
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+
+                string chartSql = "SELECT TOP 10 Name, Price FROM Products";
+                SqlCommand cmd = new SqlCommand(chartSql, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                string labels = "";
+                string data = "";
+
+                while (reader.Read())
+                {
+                    labels += reader["Name"].ToString() + ",";
+                    data += reader["Price"].ToString() + ",";
+                }
+
+                hfChartLabels.Value = labels.TrimEnd(',');
+                hfChartData.Value = data.TrimEnd(',');
             }
         }
 

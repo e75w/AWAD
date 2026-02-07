@@ -3,6 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container-fluid mt-4">
         
+        <!-- Analytics -->
         <div class="row mb-4">
             <div class="col-12">
                 <h2 class="text-primary border-bottom pb-2">Admin Analytics Dashboard</h2>
@@ -39,6 +40,44 @@
             </div>
         </div>
 
+        <!-- Charts n stuff -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header">Inventory Levels</div>
+                    <div class="card-body">
+                        <canvas id="inventoryChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <asp:HiddenField ID="hfChartLabels" runat="server" />
+        <asp:HiddenField ID="hfChartData" runat="server" />
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var ctx = document.getElementById('inventoryChart').getContext('2d');
+                var labels = document.getElementById('<%= hfChartLabels.ClientID %>').value.split(',');
+                var data = document.getElementById('<%= hfChartData.ClientID %>').value.split(',');
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Stock Quantity (Simulated for Demo)',
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                        }]
+                    }
+                });
+            });
+        </script>
+
+        <!-- Inventory -->
         <div class="row">
             <div class="col-12">
                 <h3 class="text-secondary border-bottom pb-2 mt-4">Inventory Management (CRUD)</h3>
