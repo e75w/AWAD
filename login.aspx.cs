@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data;
-using System.Data.SqlClient;
-using System.Configuration;
+using System.Net;
+using System.Net.Mail;
 
 namespace _240795P_EvanLim
 {
@@ -49,16 +52,25 @@ namespace _240795P_EvanLim
 
                 if (reader.Read())
                 {
-                    Session["UserId"] = reader["Id"];
-                    Session["Role"] = reader["Role"];
+                    Session["TempUserId"] = reader["Id"];
+                    Session["TempRole"] = reader["Role"];
 
-                    if (RequiresMFA(txtEmail.Text))
+                    bool isAppEnabled = reader["TwoFactorEnabled"] != DBNull.Value && (bool)reader["TwoFactorEnabled"];
+
+                    if (isAppEnabled)
                     {
-                        Response.Redirect("MFA");
+                        Session["AuthMode"] = "App";
+                        Response.Redirect("MFA.aspx");
                     }
                     else
                     {
-                        Response.Redirect("/");
+                        Session["AuthMode"] = "Email";
+
+                        string otp = new Random().Next(100000, 999999).ToString();
+                        Session["OTP"] = otp;
+                        SendOTPEmail(reader["Email"].ToString(), otp);
+
+                        Response.Redirect("MFA.aspx");
                     }
                 }
                 else
@@ -67,10 +79,31 @@ namespace _240795P_EvanLim
                 }
             }
         }
-
-        private bool RequiresMFA(string email)
+        private bool SendOTPEmail(string emailTo, string otp)
         {
-            return false; // Default false
+            try
+            {
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                smtp.EnableSsl = true;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.UseDefaultCredentials = false;
+
+                smtp.Credentials = new NetworkCredential("YOUR_GMAIL@gmail.com", "YOUR_APP_PASSWORD_HERE");
+
+                MailMessage msg = new MailMessage();
+                msg.From = new MailAddress("YOUR_GMAIL@gmail.com", "MusicStore Security");
+                msg.To.Add(emailTo);
+                msg.Subject = "Your Login Verification Code";
+                msg.Body = "Your OTP Code is: " + otp + "\n\nDo not share this code with anyone.";
+                msg.IsBodyHtml = false;
+
+                smtp.Send(msg);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
