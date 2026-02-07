@@ -100,10 +100,10 @@ namespace _240795P_EvanLim
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                 smtp.UseDefaultCredentials = false;
 
-                smtp.Credentials = new NetworkCredential("YOUR_GMAIL@gmail.com", "YOUR_APP_PASSWORD_HERE");
+                smtp.Credentials = new NetworkCredential("awadassnevanlim@gmail.com", "tqfc olgs ozra apls");
 
                 MailMessage msg = new MailMessage();
-                msg.From = new MailAddress("YOUR_GMAIL@gmail.com", "MusicStore Security");
+                msg.From = new MailAddress("awadassnevanlim@gmail.com", "MusicStore Security");
                 msg.To.Add(emailTo);
                 msg.Subject = "Your Login Verification Code";
                 msg.Body = "Your OTP Code is: " + otp + "\n\nDo not share this code with anyone.";
