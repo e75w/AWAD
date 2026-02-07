@@ -55,7 +55,7 @@ namespace _240795P_EvanLim
                     Session["TempUserId"] = reader["Id"];
                     Session["TempRole"] = reader["Role"];
 
-                    bool isAppEnabled = reader["TwoFactorEnabled"] != DBNull.Value && (bool)reader["TwoFactorEnabled"];
+                    bool isAppEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && (bool)reader["IsTwoFactorEnabled"];
 
                     if (isAppEnabled)
                     {

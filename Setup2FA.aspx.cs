@@ -65,7 +65,7 @@ namespace _240795P_EvanLim
             string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "UPDATE Users SET TwoFactorSecret = @Secret, TwoFactorEnabled = 1 WHERE Id = @Id";
+                string sql = "UPDATE Users SET TwoFactorSecret = @Secret, IsTwoFactorEnabled = 1 WHERE Id = @Id";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Secret", secret);
                 cmd.Parameters.AddWithValue("@Id", Session["UserId"]);
