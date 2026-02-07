@@ -34,14 +34,7 @@
                             <a class="nav-link" href="login">Login</a>
                         <% } 
                         else { %>
-                            <a class="nav-link" href="Profile">My Profile</a> <a class="nav-link" href="Orders">Checkout</a>
-                            <asp:LinkButton ID="LinkButton1" runat="server" CssClass="nav-link" OnClick="Logout_Click">Logout</asp:LinkButton>
-                        <% } %>
-
-                        <% if (Session["UserId"] == null) { %>
-                            <a class="nav-link" href="login">Login</a>
-                        <% } 
-                        else { %>
+                            <a class="nav-link" href="Profile">My Profile</a>
                             <a class="nav-link" href="Orders">Checkout</a>
                             <asp:LinkButton ID="btnLogout" runat="server" CssClass="nav-link" OnClick="Logout_Click">Logout</asp:LinkButton>
                         <% } %>
