@@ -17,6 +17,12 @@ namespace _240795P_EvanLim
             if (Session["TempUserId"] == null) Response.Redirect("Login.aspx");
         }
 
+        protected void btnResend_Click(object sender, EventArgs e)
+        {
+            lblMessage.Text = "Please log in again to generate a new code.";
+            lblMessage.CssClass = "text-warning fw-bold";
+        }
+
         protected void btnVerify_Click(object sender, EventArgs e)
         {
             string userCode = txtOTP.Text.Trim();
