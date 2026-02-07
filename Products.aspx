@@ -49,22 +49,33 @@
                             </h5>
     
                             <h6 class="card-subtitle mb-2 text-muted">Price: $<%# Eval("Price", "{0:N2}") %></h6>
+    
+                            <h6 class="card-subtitle mb-2" style='<%# Convert.ToInt32(Eval("Stock")) > 0 ? "color:green;" : "color:red;" %>'>
+                                <%# Convert.ToInt32(Eval("Stock")) > 0 ? "Stock: " + Eval("Stock") + " left" : "Out of Stock" %>
+                            </h6>
+
                             <p class="card-text text-truncate"><%# Eval("Description") %></p>
                         </div>
 
                         <div class="card-footer bg-white border-top-0">
                             <div class="row g-2 align-items-center">
-                                <div class="col-auto">
+                                <div class="col-auto" runat="server" Visible='<%# Convert.ToInt32(Eval("Stock")) > 0 %>'>
                                     <label class="col-form-label">Qty:</label>
                                 </div>
-                                <div class="col-auto">
-                                    <asp:TextBox ID="txtQuantity" runat="server" TextMode="Number" Text="1" min="1" max="99" CssClass="form-control form-control-sm" Width="60px"></asp:TextBox>
+                                <div class="col-auto" runat="server" Visible='<%# Convert.ToInt32(Eval("Stock")) > 0 %>'>
+                                    <asp:TextBox ID="txtQuantity" runat="server" TextMode="Number" Text="1" min="1" max='<%# Eval("Stock") %>' CssClass="form-control form-control-sm" Width="60px"></asp:TextBox>
                                 </div>
+        
                                 <div class="col">
                                     <asp:Button ID="btnAddToCart" runat="server" Text="Add to Cart" 
                                         CommandName="AddToCart" 
                                         CommandArgument='<%# Eval("Id") %>' 
-                                        CssClass="btn btn-primary btn-sm w-100" />
+                                        CssClass="btn btn-primary btn-sm w-100"
+                                        Visible='<%# Convert.ToInt32(Eval("Stock")) > 0 %>' />
+
+                                    <asp:Label ID="lblSoldOut" runat="server" Text="Sold Out" 
+                                        CssClass="btn btn-secondary btn-sm w-100 disabled"
+                                        Visible='<%# Convert.ToInt32(Eval("Stock")) <= 0 %>' />
                                 </div>
                             </div>
                         </div>

@@ -26,25 +26,10 @@
                 </p>
 
                 <div class="d-flex mt-3">
-                    <asp:TextBox ID="TextBox1" runat="server" TextMode="Number" Text="1" CssClass="form-control w-25 me-2"></asp:TextBox>
-                    <asp:Button ID="Button1" runat="server" Text="Add to Cart" CssClass="btn btn-primary" OnClick="btnAddToCart_Click" />
+                    <asp:TextBox ID="txtQty" runat="server" TextMode="Number" Text="1" CssClass="form-control w-25 me-2"></asp:TextBox>
+                    <asp:Button ID="btnAddToCart" runat="server" Text="Add to Cart" CssClass="btn btn-primary" OnClick="btnAddToCart_Click" />
                 </div>
                 <asp:Label ID="lblError" runat="server" ForeColor="Red" Visible="false"></asp:Label>
-
-                <div class="card bg-light p-3 mt-4">
-                    <div class="row g-2 align-items-center">
-                        <div class="col-auto">
-                            <label>Quantity:</label>
-                        </div>
-                        <div class="col-auto">
-                            <asp:TextBox ID="txtQty" runat="server" TextMode="Number" Text="1" min="1" max="99" CssClass="form-control" Width="80px"></asp:TextBox>
-                        </div>
-                        <div class="col">
-                            <asp:Button ID="btnAddToCart" runat="server" Text="Add to Cart" CssClass="btn btn-success w-100" OnClick="btnAddToCart_Click" />
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
