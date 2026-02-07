@@ -35,7 +35,7 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
-                // --- 1. EXISTING TEXT CARDS ---
+                // Quick Analytics
                 string revenueSql = "SELECT SUM(TotalAmount) FROM Orders";
                 SqlCommand cmdRev = new SqlCommand(revenueSql, conn);
                 object revResult = cmdRev.ExecuteScalar();
@@ -54,30 +54,25 @@ namespace _240795P_EvanLim
                 object topResult = cmdTop.ExecuteScalar();
                 lblTopProduct.Text = (topResult != null) ? topResult.ToString() : "No Sales Yet";
 
+                List<string> stockNames = new List<string>();
+                List<string> stockValues = new List<string>();
 
-                // --- 2. FETCH DATA & CALCULATE HEIGHT ---
-
-                // A. Stock Data
-                string stockLabels = "";
-                string stockData = "";
-                int itemCount = 0; // <--- Counter for dynamic height
-
+                // Charts n Graphs
                 string stockSql = "SELECT Name, ISNULL(Stock, 0) as Stock FROM Products ORDER BY Stock ASC";
                 SqlCommand cmdStock = new SqlCommand(stockSql, conn);
                 SqlDataReader rdrStock = cmdStock.ExecuteReader();
 
                 while (rdrStock.Read())
                 {
-                    string cleanName = rdrStock["Name"].ToString().Replace("'", "");
-                    stockLabels += "'" + cleanName + "',";
-                    stockData += rdrStock["Stock"].ToString() + ",";
-                    itemCount++; // Count the items
+                    string cleanName = rdrStock["Name"].ToString().Replace(",", "").Replace("'", "");
+                    stockNames.Add(cleanName);
+                    stockValues.Add(rdrStock["Stock"].ToString());
                 }
                 rdrStock.Close();
 
-                // B. Revenue Trend Data
-                string revLabels = "";
-                string revData = "";
+                List<string> revDates = new List<string>();
+                List<string> revValues = new List<string>();
+
                 string trendSql = @"SELECT FORMAT(OrderDate, 'dd MMM') as Date, SUM(TotalAmount) as Total 
                             FROM Orders 
                             GROUP BY FORMAT(OrderDate, 'dd MMM'), CAST(OrderDate as Date) 
@@ -87,57 +82,16 @@ namespace _240795P_EvanLim
 
                 while (rdrTrend.Read())
                 {
-                    revLabels += "'" + rdrTrend["Date"].ToString() + "',";
-                    revData += rdrTrend["Total"].ToString() + ",";
+                    revDates.Add(rdrTrend["Date"].ToString());
+                    revValues.Add(rdrTrend["Total"].ToString());
                 }
                 rdrTrend.Close();
 
-                // --- 3. GENERATE URLS WITH DYNAMIC HEIGHT ---
+                hfStockLabels.Value = string.Join(",", stockNames);
+                hfStockData.Value = string.Join(",", stockValues);
 
-                stockLabels = stockLabels.TrimEnd(',');
-                stockData = stockData.TrimEnd(',');
-                revLabels = revLabels.TrimEnd(',');
-                revData = revData.TrimEnd(',');
-
-                if (string.IsNullOrEmpty(stockLabels)) { stockLabels = "'No Data'"; stockData = "0"; itemCount = 1; }
-                if (string.IsNullOrEmpty(revLabels)) { revLabels = "'No Data'"; revData = "0"; }
-
-                // Calculate Height: 30 pixels per product + 100px buffer for header/footer
-                int chartHeight = (itemCount * 30) + 100;
-                if (chartHeight < 300) chartHeight = 300; // Minimum height
-
-                string chartJson1 = $@"{{
-                    'type': 'horizontalBar',
-                    'data': {{
-                        'labels': [{stockLabels}],
-                        'datasets': [{{
-                            'label': 'Stock Quantity',
-                            'data': [{stockData}],
-                            'backgroundColor': 'rgba(54, 162, 235, 0.6)'
-                        }}]
-                    }},
-                    'options': {{
-                        'legend': {{ 'display': false }},
-                        'scales': {{ 'xAxes': [{{ 'ticks': {{ 'beginAtZero': true }} }}] }}
-                    }}
-                }}";
-
-                string chartJson2 = $@"{{
-                    'type': 'line',
-                    'data': {{
-                        'labels': [{revLabels}],
-                        'datasets': [{{
-                            'label': 'Revenue ($)',
-                            'data': [{revData}],
-                            'borderColor': 'rgba(75, 192, 192, 1)',
-                            'fill': false
-                        }}]
-                    }}
-                }}";
-
-                imgStockChart.ImageUrl = "https://quickchart.io/chart?h=" + chartHeight + "&c=" + Uri.EscapeDataString(chartJson1);
-
-                imgRevenueChart.ImageUrl = "https://quickchart.io/chart?h=300&c=" + Uri.EscapeDataString(chartJson2);
+                hfRevLabels.Value = string.Join(",", revDates);
+                hfRevData.Value = string.Join(",", revValues);
             }
         }
 

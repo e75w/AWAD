@@ -42,22 +42,40 @@ namespace _240795P_EvanLim
         protected global::System.Web.UI.WebControls.Label lblTopProduct;
 
         /// <summary>
-        /// imgStockChart control.
+        /// hfStockLabels control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Image imgStockChart;
+        protected global::System.Web.UI.WebControls.HiddenField hfStockLabels;
 
         /// <summary>
-        /// imgRevenueChart control.
+        /// hfStockData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Image imgRevenueChart;
+        protected global::System.Web.UI.WebControls.HiddenField hfStockData;
+
+        /// <summary>
+        /// hfRevLabels control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfRevLabels;
+
+        /// <summary>
+        /// hfRevData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfRevData;
 
         /// <summary>
         /// lblMessage control.

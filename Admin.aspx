@@ -45,10 +45,13 @@
             <div class="col-lg-6">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Stock Levels (Powered by QuickChart API)</h5>
+                        <h5 class="mb-0">Stock Levels (Hover for Details)</h5>
                     </div>
-                    <div class="card-body text-center">
-                        <asp:Image ID="imgStockChart" runat="server" CssClass="img-fluid" Width="100%" AlternateText="Loading Chart..." />
+                    <div class="card-body">
+                        <div style="height: 400px; overflow-y: auto;">
+                            <div style="height: 1000px;"> <canvas id="stockChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,14 +59,99 @@
             <div class="col-lg-6">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Revenue Trend (Powered by QuickChart API)</h5>
+                        <h5 class="mb-0">Revenue Trend</h5>
                     </div>
-                    <div class="card-body text-center">
-                        <asp:Image ID="imgRevenueChart" runat="server" CssClass="img-fluid" Width="100%" AlternateText="Loading Chart..." />
+                    <div class="card-body">
+                        <canvas id="revenueChart" height="200"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+
+        <asp:HiddenField ID="hfStockLabels" runat="server" />
+        <asp:HiddenField ID="hfStockData" runat="server" />
+        <asp:HiddenField ID="hfRevLabels" runat="server" />
+        <asp:HiddenField ID="hfRevData" runat="server" />
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // --- 1. STOCK CHART (Horizontal) ---
+                var stockCtx = document.getElementById('stockChart').getContext('2d');
+                var stockLabelsRaw = document.getElementById('<%= hfStockLabels.ClientID %>').value;
+                var stockDataRaw = document.getElementById('<%= hfStockData.ClientID %>').value;
+
+                // Parse CSV strings into Arrays (Handle empty data safely)
+                var stockLabels = stockLabelsRaw ? stockLabelsRaw.split(',') : [];
+                var stockData = stockDataRaw ? stockDataRaw.split(',').map(Number) : [];
+
+                new Chart(stockCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: stockLabels,
+                        datasets: [{
+                            label: 'Units in Stock',
+                            data: stockData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y', // Makes it Horizontal
+                        maintainAspectRatio: false, // Allows it to stretch inside our scrollable div
+                        plugins: {
+                            tooltip: {
+                                enabled: true, // ENABLES HOVER
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.raw + ' items left'; // Custom text on hover
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                // --- 2. REVENUE CHART (Line) ---
+                var revCtx = document.getElementById('revenueChart').getContext('2d');
+                var revLabelsRaw = document.getElementById('<%= hfRevLabels.ClientID %>').value;
+                var revDataRaw = document.getElementById('<%= hfRevData.ClientID %>').value;
+
+                var revLabels = revLabelsRaw ? revLabelsRaw.split(',') : [];
+                var revData = revDataRaw ? revDataRaw.split(',').map(Number) : [];
+
+                new Chart(revCtx, {
+                    type: 'line',
+                    data: {
+                        labels: revLabels,
+                        datasets: [{
+                            label: 'Revenue ($)',
+                            data: revData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                            tension: 0.3 // Makes line curvy
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return '$' + context.raw; // Shows $ on hover
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        </script>
 
         <!-- Inventory -->
         <div class="row">
