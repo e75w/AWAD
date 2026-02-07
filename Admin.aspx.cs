@@ -31,11 +31,11 @@ namespace _240795P_EvanLim
 
         private void LoadAnalytics()
         {
-            // Quick Analytics
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
 
+                // Quick Analytics
                 string revenueSql = "SELECT SUM(TotalAmount) FROM Orders";
                 SqlCommand cmdRev = new SqlCommand(revenueSql, conn);
                 object revResult = cmdRev.ExecuteScalar();
@@ -47,38 +47,74 @@ namespace _240795P_EvanLim
                 int totalOrders = (int)cmdCount.ExecuteScalar();
                 lblTotalOrders.Text = totalOrders.ToString();
 
-                string topSql = @"
-                    SELECT TOP 1 p.Name 
-                    FROM OrderDetails od
-                    JOIN Products p ON od.ProductId = p.Id
-                    GROUP BY p.Name
-                    ORDER BY SUM(od.Quantity) DESC";
-
+                string topSql = @"SELECT TOP 1 p.Name FROM OrderDetails od JOIN Products p ON od.ProductId = p.Id GROUP BY p.Name ORDER BY SUM(od.Quantity) DESC";
                 SqlCommand cmdTop = new SqlCommand(topSql, conn);
                 object topResult = cmdTop.ExecuteScalar();
                 lblTopProduct.Text = (topResult != null) ? topResult.ToString() : "No Sales Yet";
-            }
 
-            // Graphs n Charts
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
+                // Graphs n Charts
+                string stockLabels = "";
+                string stockData = "";
+                string stockSql = "SELECT TOP 5 Name, Stock FROM Products ORDER BY Stock ASC";
+                SqlCommand cmdStock = new SqlCommand(stockSql, conn);
+                SqlDataReader rdrStock = cmdStock.ExecuteReader();
 
-                string chartSql = "SELECT TOP 10 Name, Price FROM Products";
-                SqlCommand cmd = new SqlCommand(chartSql, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                string labels = "";
-                string data = "";
-
-                while (reader.Read())
+                while (rdrStock.Read())
                 {
-                    labels += reader["Name"].ToString() + ",";
-                    data += reader["Price"].ToString() + ",";
+                    stockLabels += "'" + rdrStock["Name"].ToString() + "',";
+                    stockData += rdrStock["Stock"].ToString() + ",";
                 }
+                rdrStock.Close();
 
-                hfChartLabels.Value = labels.TrimEnd(',');
-                hfChartData.Value = data.TrimEnd(',');
+                string revLabels = "";
+                string revData = "";
+                string trendSql = "SELECT FORMAT(OrderDate, 'dd MMM') as Date, SUM(TotalAmount) as Total FROM Orders GROUP BY FORMAT(OrderDate, 'dd MMM'), CAST(OrderDate as Date) ORDER BY CAST(OrderDate as Date)";
+                SqlCommand cmdTrend = new SqlCommand(trendSql, conn);
+                SqlDataReader rdrTrend = cmdTrend.ExecuteReader();
+
+                while (rdrTrend.Read())
+                {
+                    revLabels += "'" + rdrTrend["Date"].ToString() + "',";
+                    revData += rdrTrend["Total"].ToString() + ",";
+                }
+                rdrTrend.Close();
+
+                stockLabels = stockLabels.TrimEnd(',');
+                stockData = stockData.TrimEnd(',');
+                revLabels = revLabels.TrimEnd(',');
+                revData = revData.TrimEnd(',');
+
+                if (string.IsNullOrEmpty(stockLabels)) { stockLabels = "'No Data'"; stockData = "0"; }
+                if (string.IsNullOrEmpty(revLabels)) { revLabels = "'No Data'"; revData = "0"; }
+
+                string chartJson1 = $@"{{
+                                         'type': 'bar',
+                                         'data': {{
+                                             'labels': [{stockLabels}],
+                                             'datasets': [{{
+                                                 'label': 'Stock Quantity',
+                                                 'data': [{stockData}],
+                                                 'backgroundColor': 'rgba(54, 162, 235, 0.6)'
+                                             }}]
+                                         }}
+                                       }}";
+
+                // Generate the URL for Revenue Chart (Line Chart)
+                string chartJson2 = $@"{{
+                                         'type': 'line',
+                                         'data': {{
+                                             'labels': [{revLabels}],
+                                             'datasets': [{{
+                                                 'label': 'Revenue ($)',
+                                                 'data': [{revData}],
+                                                 'borderColor': 'rgba(75, 192, 192, 1)',
+                                                 'fill': false
+                                             }}]
+                                         }}
+                                       }}";
+
+                imgStockChart.ImageUrl = "https://quickchart.io/chart?c=" + Uri.EscapeDataString(chartJson1);
+                imgRevenueChart.ImageUrl = "https://quickchart.io/chart?c=" + Uri.EscapeDataString(chartJson2);
             }
         }
 
@@ -104,6 +140,7 @@ namespace _240795P_EvanLim
             txtDesc.Text = "";
             txtImage.Text = "";
             hfProductId.Value = "";
+            txtStock.Text = "";
 
             btnAdd.Visible = true;
             btnUpdate.Visible = false;
@@ -116,8 +153,8 @@ namespace _240795P_EvanLim
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 // Insert query
-                string sql = @"INSERT INTO Products (Id, Name, Price, Category, Description, ImageUrl) 
-                               VALUES (NEWID(), @Name, @Price, @Category, @Desc, @Img)";
+                string sql = @"INSERT INTO Products (Id, Name, Price, Category, Description, ImageUrl, Stock) 
+                               VALUES (NEWID(), @Name, @Price, @Category, @Desc, @Img, @Stock)";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Name", txtName.Text.Trim());
@@ -125,6 +162,7 @@ namespace _240795P_EvanLim
                 cmd.Parameters.AddWithValue("@Category", ddlCategory.SelectedValue);
                 cmd.Parameters.AddWithValue("@Desc", txtDesc.Text.Trim());
                 cmd.Parameters.AddWithValue("@Img", txtImage.Text.Trim());
+                cmd.Parameters.AddWithValue("@Stock", int.Parse(txtStock.Text));
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -148,7 +186,7 @@ namespace _240795P_EvanLim
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"UPDATE Products 
-                       SET Name=@Name, Price=@Price, Category=@Category, Description=@Desc, ImageUrl=@Img 
+                       SET Name=@Name, Price=@Price, Category=@Category, Description=@Desc, ImageUrl=@Img, Stock=@Stock
                        WHERE Id=@Id";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
@@ -158,6 +196,7 @@ namespace _240795P_EvanLim
                 cmd.Parameters.AddWithValue("@Desc", txtDesc.Text.Trim());
                 cmd.Parameters.AddWithValue("@Img", txtImage.Text.Trim());
                 cmd.Parameters.AddWithValue("@Id", hfProductId.Value);
+                cmd.Parameters.AddWithValue("@Stock", int.Parse(txtStock.Text));
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -194,6 +233,7 @@ namespace _240795P_EvanLim
                     ddlCategory.SelectedValue = reader["Category"].ToString();
                     txtDesc.Text = reader["Description"].ToString();
                     txtImage.Text = reader["ImageUrl"].ToString();
+                    txtStock.Text = reader["Stock"].ToString();
 
                     // Switch to "Edit Mode"
                     hfProductId.Value = id;

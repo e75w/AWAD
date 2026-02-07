@@ -41,41 +41,29 @@
         </div>
 
         <!-- Charts n stuff -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
         <div class="row mb-4">
-            <div class="col-12">
+            <div class="col-lg-6">
                 <div class="card shadow-sm">
-                    <div class="card-header">Inventory Levels</div>
-                    <div class="card-body">
-                        <canvas id="inventoryChart" style="max-height: 400px;"></canvas>
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Stock Levels (Powered by QuickChart API)</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <asp:Image ID="imgStockChart" runat="server" CssClass="img-fluid" Width="100%" AlternateText="Loading Chart..." />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Revenue Trend (Powered by QuickChart API)</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <asp:Image ID="imgRevenueChart" runat="server" CssClass="img-fluid" Width="100%" AlternateText="Loading Chart..." />
                     </div>
                 </div>
             </div>
         </div>
-
-        <asp:HiddenField ID="hfChartLabels" runat="server" />
-        <asp:HiddenField ID="hfChartData" runat="server" />
-
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                var ctx = document.getElementById('inventoryChart').getContext('2d');
-                var labels = document.getElementById('<%= hfChartLabels.ClientID %>').value.split(',');
-                var data = document.getElementById('<%= hfChartData.ClientID %>').value.split(',');
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Stock Quantity (Simulated for Demo)',
-                            data: data,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)'
-                        }]
-                    }
-                });
-            });
-        </script>
 
         <!-- Inventory -->
         <div class="row">
@@ -117,6 +105,8 @@
                         <div class="mb-2">
                             <label>Image URL</label>
                             <asp:TextBox ID="txtImage" runat="server" CssClass="form-control" placeholder="/images/guitar.jpg"></asp:TextBox>
+                            <label>Stock Quantity</label>
+                            <asp:TextBox ID="txtStock" runat="server" CssClass="form-control" TextMode="Number"></asp:TextBox>
                         </div>
 
                         <div class="mb-3">
@@ -174,6 +164,7 @@
                                     </asp:TemplateField>
                                 </Columns>
                             </asp:GridView>
+                        </div>
                     </div>
                 </div>
             </div>
