@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID_HERE&currency=USD"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AeEczEDjsXJ7WmZVtmf0fpYXRS2tZrf7m-HuFNULkOwwpYm_7fTYjCnS-Y4m8WNZOaw6pGjxlpOAPDnf&currency=USD"></script>
 
     <script>
         paypal.Buttons({
