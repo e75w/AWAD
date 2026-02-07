@@ -35,7 +35,7 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
-                // Inventory
+                // --- 1. EXISTING TEXT CARDS ---
                 string revenueSql = "SELECT SUM(TotalAmount) FROM Orders";
                 SqlCommand cmdRev = new SqlCommand(revenueSql, conn);
                 object revResult = cmdRev.ExecuteScalar();
@@ -48,15 +48,19 @@ namespace _240795P_EvanLim
                 lblTotalOrders.Text = totalOrders.ToString();
 
                 string topSql = @"SELECT TOP 1 p.Name FROM OrderDetails od 
-                                  JOIN Products p ON od.ProductId = p.Id 
-                                  GROUP BY p.Name ORDER BY SUM(od.Quantity) DESC";
+                          JOIN Products p ON od.ProductId = p.Id 
+                          GROUP BY p.Name ORDER BY SUM(od.Quantity) DESC";
                 SqlCommand cmdTop = new SqlCommand(topSql, conn);
                 object topResult = cmdTop.ExecuteScalar();
                 lblTopProduct.Text = (topResult != null) ? topResult.ToString() : "No Sales Yet";
 
-                // Graphs n Charts
+
+                // --- 2. FETCH DATA & CALCULATE HEIGHT ---
+
+                // A. Stock Data
                 string stockLabels = "";
                 string stockData = "";
+                int itemCount = 0; // <--- Counter for dynamic height
 
                 string stockSql = "SELECT Name, ISNULL(Stock, 0) as Stock FROM Products ORDER BY Stock ASC";
                 SqlCommand cmdStock = new SqlCommand(stockSql, conn);
@@ -67,15 +71,17 @@ namespace _240795P_EvanLim
                     string cleanName = rdrStock["Name"].ToString().Replace("'", "");
                     stockLabels += "'" + cleanName + "',";
                     stockData += rdrStock["Stock"].ToString() + ",";
+                    itemCount++; // Count the items
                 }
                 rdrStock.Close();
 
+                // B. Revenue Trend Data
                 string revLabels = "";
                 string revData = "";
                 string trendSql = @"SELECT FORMAT(OrderDate, 'dd MMM') as Date, SUM(TotalAmount) as Total 
-                                    FROM Orders 
-                                    GROUP BY FORMAT(OrderDate, 'dd MMM'), CAST(OrderDate as Date) 
-                                    ORDER BY CAST(OrderDate as Date)";
+                            FROM Orders 
+                            GROUP BY FORMAT(OrderDate, 'dd MMM'), CAST(OrderDate as Date) 
+                            ORDER BY CAST(OrderDate as Date)";
                 SqlCommand cmdTrend = new SqlCommand(trendSql, conn);
                 SqlDataReader rdrTrend = cmdTrend.ExecuteReader();
 
@@ -86,13 +92,19 @@ namespace _240795P_EvanLim
                 }
                 rdrTrend.Close();
 
+                // --- 3. GENERATE URLS WITH DYNAMIC HEIGHT ---
+
                 stockLabels = stockLabels.TrimEnd(',');
                 stockData = stockData.TrimEnd(',');
                 revLabels = revLabels.TrimEnd(',');
                 revData = revData.TrimEnd(',');
 
-                if (string.IsNullOrEmpty(stockLabels)) { stockLabels = "'No Data'"; stockData = "0"; }
+                if (string.IsNullOrEmpty(stockLabels)) { stockLabels = "'No Data'"; stockData = "0"; itemCount = 1; }
                 if (string.IsNullOrEmpty(revLabels)) { revLabels = "'No Data'"; revData = "0"; }
+
+                // Calculate Height: 30 pixels per product + 100px buffer for header/footer
+                int chartHeight = (itemCount * 30) + 100;
+                if (chartHeight < 300) chartHeight = 300; // Minimum height
 
                 string chartJson1 = $@"{{
                     'type': 'horizontalBar',
@@ -123,8 +135,9 @@ namespace _240795P_EvanLim
                     }}
                 }}";
 
-                imgStockChart.ImageUrl = "https://quickchart.io/chart?c=" + Uri.EscapeDataString(chartJson1);
-                imgRevenueChart.ImageUrl = "https://quickchart.io/chart?c=" + Uri.EscapeDataString(chartJson2);
+                imgStockChart.ImageUrl = "https://quickchart.io/chart?h=" + chartHeight + "&c=" + Uri.EscapeDataString(chartJson1);
+
+                imgRevenueChart.ImageUrl = "https://quickchart.io/chart?h=300&c=" + Uri.EscapeDataString(chartJson2);
             }
         }
 
