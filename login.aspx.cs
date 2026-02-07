@@ -52,19 +52,37 @@ namespace _240795P_EvanLim
 
                 if (reader.Read())
                 {
-                    Session["TempUserId"] = reader["Id"];
-                    Session["TempRole"] = reader["Role"];
+                    bool isMfaEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
 
-                    bool isAppEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
-                    Session["NeedsAppVerification"] = isAppEnabled;
+                    if (isMfaEnabled)
+                    {
+                        Session["TempUserId"] = reader["Id"];
+                        Session["TempRole"] = reader["Role"];
+                        Session["NeedsAppVerification"] = true;
 
-                    string otp = new Random().Next(100000, 999999).ToString();
-                    Session["EmailOTP"] = otp;
-                    SendOTPEmail(reader["Email"].ToString(), otp);
+                        string otp = new Random().Next(100000, 999999).ToString();
+                        Session["EmailOTP"] = otp;
 
-                    Response.Redirect("MFA");
+                        bool emailSent = SendOTPEmail(reader["Email"].ToString(), otp);
+
+                        if (emailSent)
+                        {
+                            Response.Redirect("MFA.aspx");
+                        }
+                        else
+                        {
+                            lblError.Text = "Error sending verification email.";
+                        }
+                    }
+                    else
+                    {
+
+                        Session["UserId"] = reader["Id"];
+                        Session["Role"] = reader["Role"];
+
+                        Response.Redirect("/");
+                    }
                 }
-
                 else
                 {
                     lblError.Text = "Invalid email or password.";
