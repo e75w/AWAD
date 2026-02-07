@@ -48,15 +48,19 @@ namespace _240795P_EvanLim
 
             if (isCorrect)
             {
-                // 4. Save Secret Key to Database
+                // 1. Save the Secret Key to Database
                 SaveSecretToDB(secretKey);
-                lblMessage.Text = "Success! You can now use the App to login.";
-                lblMessage.CssClass = "text-success";
+
+                // 2. Set a temporary "Success" message in Session
+                Session["MFA_Status"] = "Enabled";
+
+                // 3. REDIRECT back to the Profile page immediately
+                Response.Redirect("Profile");
             }
             else
             {
                 lblMessage.Text = "Invalid Code. Please try again.";
-                lblMessage.CssClass = "text-danger";
+                lblMessage.CssClass = "text-danger fw-bold";
             }
         }
 

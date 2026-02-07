@@ -19,12 +19,20 @@ namespace _240795P_EvanLim
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["UserId"] == null) Response.Redirect("Login.aspx");
+            if (Session["UserId"] == null) Response.Redirect("login");
 
             if (!IsPostBack)
             {
                 LoadUserProfile();
                 LoadOrderHistory();
+
+                if (Session["MFA_Status"] != null && Session["MFA_Status"].ToString() == "Enabled")
+                {
+                    lblMFAStatus.Text = "Success! Two-Factor Authentication has been enabled.";
+                    lblMFAStatus.CssClass = "alert alert-success d-block fw-bold";
+
+                    Session.Remove("MFA_Status");
+                }
             }
         }
 
