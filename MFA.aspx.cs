@@ -14,49 +14,65 @@ namespace _240795P_EvanLim
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["TempUserId"] == null) Response.Redirect("login");
+            if (Session["TempUserId"] == null) Response.Redirect("Login.aspx");
         }
 
-        protected void btnResend_Click(object sender, EventArgs e)
+        protected void btnVerifyEmail_Click(object sender, EventArgs e)
         {
-            lblMessage.Text = "Please log in again to generate a new code.";
-            lblMessage.CssClass = "text-warning fw-bold";
-        }
+            string userCode = txtEmailCode.Text.Trim();
+            string serverCode = Session["EmailOTP"] as string;
 
-        protected void btnVerify_Click(object sender, EventArgs e)
-        {
-            string userCode = txtOTP.Text.Trim();
-            bool isVerified = false;
-
-            if (Session["AuthMode"].ToString() == "App")
+            if (userCode == serverCode)
             {
-                string secretKey = GetUserSecret(Session["TempUserId"].ToString());
-                TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
-                isVerified = tfa.ValidateTwoFactorPIN(secretKey, userCode);
+                bool needsApp = (bool)Session["NeedsAppVerification"];
+
+                if (needsApp)
+                {
+                    pnlEmail.Visible = false;
+                    pnlApp.Visible = true;
+                    lblMessage.Text = "";
+                }
+                else
+                {
+                    PerformLogin();
+                }
             }
             else
             {
-                string serverCode = Session["OTP"] as string;
-                isVerified = (userCode == serverCode);
+                lblMessage.Text = "Incorrect Email Code.";
             }
+        }
 
-            if (isVerified)
+        protected void btnVerifyApp_Click(object sender, EventArgs e)
+        {
+            string userId = Session["TempUserId"].ToString();
+            string userCode = txtAppCode.Text.Trim();
+            string secretKey = GetUserSecret(userId);
+
+            TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
+            bool isCorrect = tfa.ValidateTwoFactorPIN(secretKey, userCode);
+
+            if (isCorrect)
             {
-                Session["UserId"] = Session["TempUserId"];
-                Session["Role"] = Session["TempRole"];
-
-                // Cleanup
-                Session.Remove("TempUserId");
-                Session.Remove("TempRole");
-                Session.Remove("OTP");
-                Session.Remove("AuthMode");
-
-                Response.Redirect("/");
+                PerformLogin();
             }
             else
             {
-                lblMessage.Text = "Incorrect Code.";
+                lblMessage.Text = "Incorrect App Code.";
             }
+        }
+
+        private void PerformLogin()
+        {
+            Session["UserId"] = Session["TempUserId"];
+            Session["Role"] = Session["TempRole"];
+
+            Session.Remove("TempUserId");
+            Session.Remove("TempRole");
+            Session.Remove("EmailOTP");
+            Session.Remove("NeedsAppVerification");
+
+            Response.Redirect("/");
         }
 
         private string GetUserSecret(string userId)

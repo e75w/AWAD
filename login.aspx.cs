@@ -52,38 +52,19 @@ namespace _240795P_EvanLim
 
                 if (reader.Read())
                 {
-                    bool isMfaEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
+                    Session["TempUserId"] = reader["Id"];
+                    Session["TempRole"] = reader["Role"];
 
-                    if (isMfaEnabled)
-                    {
-                        Session["TempUserId"] = reader["Id"];
-                        Session["TempRole"] = reader["Role"];
-                        Session["TempEmail"] = reader["Email"].ToString();
+                    bool isAppEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
+                    Session["NeedsAppVerification"] = isAppEnabled;
 
-                        if (reader["TwoFactorSecret"] != DBNull.Value && !string.IsNullOrEmpty(reader["TwoFactorSecret"].ToString()))
-                        {
-                            Session["AuthMode"] = "App";
-                        }
-                        else
-                        {
-                            Session["AuthMode"] = "Email";
+                    string otp = new Random().Next(100000, 999999).ToString();
+                    Session["EmailOTP"] = otp;
+                    SendOTPEmail(reader["Email"].ToString(), otp);
 
-                            string otp = new Random().Next(100000, 999999).ToString();
-                            Session["OTP"] = otp;
-                            SendOTPEmail(reader["Email"].ToString(), otp);
-                        }
-
-                        Response.Redirect("MFA.aspx");
-                    }
-                    else
-                    {
-
-                        Session["UserId"] = reader["Id"];
-                        Session["Role"] = reader["Role"];
-
-                        Response.Redirect("/");
-                    }
+                    Response.Redirect("MFA");
                 }
+
                 else
                 {
                     lblError.Text = "Invalid email or password.";
