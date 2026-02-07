@@ -21,6 +21,16 @@
                 <p><strong>Description:</strong></p>
                 <p><asp:Label ID="lblDescription" runat="server"></asp:Label></p>
 
+                <p class="text-muted">
+                    Availability: <asp:Label ID="lblStock" runat="server" Text="Checking..." Font-Bold="true"></asp:Label>
+                </p>
+
+                <div class="d-flex mt-3">
+                    <asp:TextBox ID="TextBox1" runat="server" TextMode="Number" Text="1" CssClass="form-control w-25 me-2"></asp:TextBox>
+                    <asp:Button ID="Button1" runat="server" Text="Add to Cart" CssClass="btn btn-primary" OnClick="btnAddToCart_Click" />
+                </div>
+                <asp:Label ID="lblError" runat="server" ForeColor="Red" Visible="false"></asp:Label>
+
                 <div class="card bg-light p-3 mt-4">
                     <div class="row g-2 align-items-center">
                         <div class="col-auto">

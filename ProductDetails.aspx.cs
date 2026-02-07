@@ -16,18 +16,57 @@ namespace _240795P_EvanLim
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Request.QueryString["id"] != null)
-            {
-                productId = Request.QueryString["id"];
-            }
-            else
-            {
-                Response.Redirect("Products");
-            }
-
             if (!IsPostBack)
             {
-                LoadProductDetails();
+                string productId = Request.QueryString["id"];
+                if (string.IsNullOrEmpty(productId))
+                {
+                    Response.Redirect("Products");
+                }
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    // 1. Update SQL to select STOCK
+                    string sql = "SELECT * FROM Products WHERE Id = @Id";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@Id", productId);
+                    conn.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        lblName.Text = reader["Name"].ToString();
+                        lblDescription.Text = reader["Description"].ToString();
+                        lblPrice.Text = "$" + Convert.ToDecimal(reader["Price"]).ToString("N2");
+                        imgProduct.ImageUrl = reader["ImageUrl"].ToString(); // Assuming you have this
+
+                        // 2. NEW: Display Stock
+                        int stock = Convert.ToInt32(reader["Stock"]);
+
+                        if (stock > 0)
+                        {
+                            lblStock.Text = stock + " items left";
+                            lblStock.ForeColor = System.Drawing.Color.Green;
+                            btnAddToCart.Enabled = true;
+
+                            // Set Max on TextBox if possible, otherwise validate in code
+                            txtQty.Attributes.Add("max", stock.ToString());
+                        }
+                        else
+                        {
+                            lblStock.Text = "Out of Stock";
+                            lblStock.ForeColor = System.Drawing.Color.Red;
+                            btnAddToCart.Enabled = false; // Disable button
+                            btnAddToCart.Text = "Sold Out";
+                            btnAddToCart.CssClass = "btn btn-secondary";
+                            txtQty.Enabled = false;
+                        }
+                    }
+                    else
+                    {
+                        Response.Redirect("Products");
+                    }
+                }
             }
         }
 
@@ -63,6 +102,32 @@ namespace _240795P_EvanLim
 
             string userId = Session["UserId"].ToString();
             int qty = Convert.ToInt32(txtQty.Text);
+
+            string productId = Request.QueryString["id"];
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string checkSql = "SELECT Stock FROM Products WHERE Id = @Id";
+                SqlCommand checkCmd = new SqlCommand(checkSql, conn);
+                checkCmd.Parameters.AddWithValue("@Id", productId);
+                int currentStock = (int)checkCmd.ExecuteScalar();
+
+                if (currentStock <= 0)
+                {
+                    lblError.Text = "Sorry, this item is out of stock";
+                    lblError.Visible = true;
+                    return;
+                }
+
+                else if (qty > currentStock)
+                {
+                    lblError.Text = "Sorry, we only have " + currentStock + " left.";
+                    lblError.Visible = true;
+                    return;
+                }
+            }
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
