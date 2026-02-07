@@ -55,7 +55,7 @@ namespace _240795P_EvanLim
                 // Graphs n Charts
                 string stockLabels = "";
                 string stockData = "";
-                string stockSql = "SELECT TOP 5 Name, Stock FROM Products ORDER BY Stock ASC";
+                string stockSql = "SELECT Name, Stock FROM Products ORDER BY Stock ASC";
                 SqlCommand cmdStock = new SqlCommand(stockSql, conn);
                 SqlDataReader rdrStock = cmdStock.ExecuteReader();
 
