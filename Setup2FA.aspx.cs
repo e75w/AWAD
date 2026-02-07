@@ -16,7 +16,7 @@ namespace _240795P_EvanLim
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["UserId"] == null) Response.Redirect("Login.aspx");
+            if (Session["UserId"] == null) Response.Redirect("login");
 
             if (!IsPostBack)
             {

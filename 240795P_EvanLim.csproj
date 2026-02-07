@@ -87,6 +87,7 @@
     <Content Include="ProductDetails.aspx" />
     <Content Include="Setup2FA.aspx" />
     <Content Include="MFA.aspx" />
+    <Content Include="Profile.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Masterpage.Master.cs">
@@ -166,6 +167,13 @@
     </Compile>
     <Compile Include="MFA.aspx.designer.cs">
       <DependentUpon>MFA.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Profile.aspx.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Profile.aspx.designer.cs">
+      <DependentUpon>Profile.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
