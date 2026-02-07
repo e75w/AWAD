@@ -74,6 +74,20 @@ namespace _240795P_EvanLim
             }
         }
 
+        private void ResetForm()
+        {
+            txtName.Text = "";
+            txtPrice.Text = "";
+            txtDesc.Text = "";
+            txtImage.Text = "";
+            hfProductId.Value = "";
+
+            btnAdd.Visible = true;
+            btnUpdate.Visible = false;
+            btnCancel.Visible = false;
+            lblMessage.Visible = false;
+        }
+
         protected void btnAdd_Click(object sender, EventArgs e)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -106,7 +120,72 @@ namespace _240795P_EvanLim
             LoadInventory(); // Refresh the grid immediately
         }
 
-        // --- FIXED FEATURE: CRUD (DELETE) ---
+        protected void btnUpdate_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = @"UPDATE Products 
+                       SET Name=@Name, Price=@Price, Category=@Category, Description=@Desc, ImageUrl=@Img 
+                       WHERE Id=@Id";
+
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Name", txtName.Text.Trim());
+                cmd.Parameters.AddWithValue("@Price", txtPrice.Text.Trim());
+                cmd.Parameters.AddWithValue("@Category", ddlCategory.SelectedValue);
+                cmd.Parameters.AddWithValue("@Desc", txtDesc.Text.Trim());
+                cmd.Parameters.AddWithValue("@Img", txtImage.Text.Trim());
+                cmd.Parameters.AddWithValue("@Id", hfProductId.Value);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            // Reset UI
+            ResetForm();
+            lblMessage.Text = "Product updated successfully!";
+            lblMessage.Visible = true;
+            lblMessage.CssClass = "alert alert-success d-block";
+            LoadInventory();
+        }
+
+        protected void btnCancel_Click(object sender, EventArgs e)
+        {
+            ResetForm();
+        }
+
+        private void LoadProductForEdit(string id)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string sql = "SELECT * FROM Products WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                conn.Open();
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    // Populate the form fields
+                    txtName.Text = reader["Name"].ToString();
+                    txtPrice.Text = reader["Price"].ToString(); // Ensure DB is decimal
+                    ddlCategory.SelectedValue = reader["Category"].ToString();
+                    txtDesc.Text = reader["Description"].ToString();
+                    txtImage.Text = reader["ImageUrl"].ToString();
+
+                    // Switch to "Edit Mode"
+                    hfProductId.Value = id;
+                    btnAdd.Visible = false;
+                    btnUpdate.Visible = true;
+                    btnCancel.Visible = true;
+
+                    // Optional: Scroll to top or show message
+                    lblMessage.Text = "Editing product: " + reader["Name"].ToString();
+                    lblMessage.Visible = true;
+                    lblMessage.CssClass = "alert alert-warning d-block";
+                }
+            }
+        }
+
         protected void gvAdminProducts_RowCommand(object sender, System.Web.UI.WebControls.GridViewCommandEventArgs e)
         {
             if (e.CommandName == "DeleteProduct")
@@ -137,6 +216,15 @@ namespace _240795P_EvanLim
                             true);
                     }
                 }
+            }
+
+            if (e.CommandName == "EditProduct")
+            {
+                // Get the Row Index and ID
+                int rowIndex = Convert.ToInt32(e.CommandArgument);
+                string productId = gvAdminProducts.DataKeys[rowIndex].Value.ToString();
+
+                LoadProductForEdit(productId);
             }
         }
     }
