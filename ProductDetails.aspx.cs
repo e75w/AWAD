@@ -101,7 +101,8 @@ namespace _240795P_EvanLim
             }
 
             string userId = Session["UserId"].ToString();
-            int qty = Convert.ToInt32(txtQty.Text);
+            int qty = 0;
+            int.TryParse(txtQty.Text, out qty);
 
             string productId = Request.QueryString["id"];
 
@@ -109,10 +110,13 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
+                // Check stock
                 string checkSql = "SELECT Stock FROM Products WHERE Id = @Id";
                 SqlCommand checkCmd = new SqlCommand(checkSql, conn);
                 checkCmd.Parameters.AddWithValue("@Id", productId);
-                int currentStock = (int)checkCmd.ExecuteScalar();
+
+                object result = checkCmd.ExecuteScalar();
+                int currentStock = (result != null && result != DBNull.Value) ? Convert.ToInt32(result) : 0;
 
                 if (currentStock <= 0)
                 {
@@ -120,7 +124,6 @@ namespace _240795P_EvanLim
                     lblError.Visible = true;
                     return;
                 }
-
                 else if (qty > currentStock)
                 {
                     lblError.Text = "Sorry, we only have " + currentStock + " left.";

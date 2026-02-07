@@ -21,6 +21,20 @@ namespace _240795P_EvanLim
                 LoadProducts();
             }
         }
+        private int GetStock(string productId)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                string sql = "SELECT Stock FROM Products WHERE Id = @Id";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Id", productId);
+                object result = cmd.ExecuteScalar();
+
+                // Return 0 if null, otherwise return the stock count
+                return (result != null && result != DBNull.Value) ? Convert.ToInt32(result) : 0;
+            }
+        }
 
         private void LoadProducts()
         {
@@ -141,6 +155,19 @@ namespace _240795P_EvanLim
 
                 int quantity = 1;
                 int.TryParse(txtQty.Text, out quantity);
+                int currentStock = GetStock(productId);
+
+                if (currentStock <= 0)
+                {
+                    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Sorry, this item is out of stock.');", true);
+                    return;
+                }
+
+                if (quantity > currentStock)
+                {
+                    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Sorry, only " + currentStock + " items left in stock.');", true);
+                    return;
+                }
 
                 AddToCart(productId, quantity);
 
