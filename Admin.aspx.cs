@@ -35,7 +35,7 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
-                // Quick Analytics
+                // Inventory
                 string revenueSql = "SELECT SUM(TotalAmount) FROM Orders";
                 SqlCommand cmdRev = new SqlCommand(revenueSql, conn);
                 object revResult = cmdRev.ExecuteScalar();
@@ -47,7 +47,9 @@ namespace _240795P_EvanLim
                 int totalOrders = (int)cmdCount.ExecuteScalar();
                 lblTotalOrders.Text = totalOrders.ToString();
 
-                string topSql = @"SELECT TOP 1 p.Name FROM OrderDetails od JOIN Products p ON od.ProductId = p.Id GROUP BY p.Name ORDER BY SUM(od.Quantity) DESC";
+                string topSql = @"SELECT TOP 1 p.Name FROM OrderDetails od 
+                                  JOIN Products p ON od.ProductId = p.Id 
+                                  GROUP BY p.Name ORDER BY SUM(od.Quantity) DESC";
                 SqlCommand cmdTop = new SqlCommand(topSql, conn);
                 object topResult = cmdTop.ExecuteScalar();
                 lblTopProduct.Text = (topResult != null) ? topResult.ToString() : "No Sales Yet";
@@ -55,20 +57,25 @@ namespace _240795P_EvanLim
                 // Graphs n Charts
                 string stockLabels = "";
                 string stockData = "";
-                string stockSql = "SELECT Name, Stock FROM Products ORDER BY Stock ASC";
+
+                string stockSql = "SELECT Name, ISNULL(Stock, 0) as Stock FROM Products ORDER BY Stock ASC";
                 SqlCommand cmdStock = new SqlCommand(stockSql, conn);
                 SqlDataReader rdrStock = cmdStock.ExecuteReader();
 
                 while (rdrStock.Read())
                 {
-                    stockLabels += "'" + rdrStock["Name"].ToString() + "',";
+                    string cleanName = rdrStock["Name"].ToString().Replace("'", "");
+                    stockLabels += "'" + cleanName + "',";
                     stockData += rdrStock["Stock"].ToString() + ",";
                 }
                 rdrStock.Close();
 
                 string revLabels = "";
                 string revData = "";
-                string trendSql = "SELECT FORMAT(OrderDate, 'dd MMM') as Date, SUM(TotalAmount) as Total FROM Orders GROUP BY FORMAT(OrderDate, 'dd MMM'), CAST(OrderDate as Date) ORDER BY CAST(OrderDate as Date)";
+                string trendSql = @"SELECT FORMAT(OrderDate, 'dd MMM') as Date, SUM(TotalAmount) as Total 
+                                    FROM Orders 
+                                    GROUP BY FORMAT(OrderDate, 'dd MMM'), CAST(OrderDate as Date) 
+                                    ORDER BY CAST(OrderDate as Date)";
                 SqlCommand cmdTrend = new SqlCommand(trendSql, conn);
                 SqlDataReader rdrTrend = cmdTrend.ExecuteReader();
 
@@ -88,30 +95,33 @@ namespace _240795P_EvanLim
                 if (string.IsNullOrEmpty(revLabels)) { revLabels = "'No Data'"; revData = "0"; }
 
                 string chartJson1 = $@"{{
-                                         'type': 'bar',
-                                         'data': {{
-                                             'labels': [{stockLabels}],
-                                             'datasets': [{{
-                                                 'label': 'Stock Quantity',
-                                                 'data': [{stockData}],
-                                                 'backgroundColor': 'rgba(54, 162, 235, 0.6)'
-                                             }}]
-                                         }}
-                                       }}";
+                    'type': 'horizontalBar',
+                    'data': {{
+                        'labels': [{stockLabels}],
+                        'datasets': [{{
+                            'label': 'Stock Quantity',
+                            'data': [{stockData}],
+                            'backgroundColor': 'rgba(54, 162, 235, 0.6)'
+                        }}]
+                    }},
+                    'options': {{
+                        'legend': {{ 'display': false }},
+                        'scales': {{ 'xAxes': [{{ 'ticks': {{ 'beginAtZero': true }} }}] }}
+                    }}
+                }}";
 
-                // Generate the URL for Revenue Chart (Line Chart)
                 string chartJson2 = $@"{{
-                                         'type': 'line',
-                                         'data': {{
-                                             'labels': [{revLabels}],
-                                             'datasets': [{{
-                                                 'label': 'Revenue ($)',
-                                                 'data': [{revData}],
-                                                 'borderColor': 'rgba(75, 192, 192, 1)',
-                                                 'fill': false
-                                             }}]
-                                         }}
-                                       }}";
+                    'type': 'line',
+                    'data': {{
+                        'labels': [{revLabels}],
+                        'datasets': [{{
+                            'label': 'Revenue ($)',
+                            'data': [{revData}],
+                            'borderColor': 'rgba(75, 192, 192, 1)',
+                            'fill': false
+                        }}]
+                    }}
+                }}";
 
                 imgStockChart.ImageUrl = "https://quickchart.io/chart?c=" + Uri.EscapeDataString(chartJson1);
                 imgRevenueChart.ImageUrl = "https://quickchart.io/chart?c=" + Uri.EscapeDataString(chartJson2);
