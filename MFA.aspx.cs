@@ -14,7 +14,7 @@ namespace _240795P_EvanLim
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["TempUserId"] == null) Response.Redirect("Login.aspx");
+            if (Session["TempUserId"] == null) Response.Redirect("login");
         }
 
         protected void btnVerifyEmail_Click(object sender, EventArgs e)

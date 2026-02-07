@@ -54,13 +54,13 @@ namespace _240795P_EvanLim
                     bool isMfa = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
                     if (isMfa)
                     {
-                        lblMFAStatus.Text = "✅ MFA Enabled";
+                        lblMFAStatus.Text = "MFA Enabled";
                         lblMFAStatus.CssClass = "text-success fw-bold";
                         btnEnableMFA.Visible = false;
                     }
                     else
                     {
-                        lblMFAStatus.Text = "⚠️ Account Insecure";
+                        lblMFAStatus.Text = "Account Insecure";
                         lblMFAStatus.CssClass = "text-danger";
                         btnEnableMFA.Visible = true;
                     }
