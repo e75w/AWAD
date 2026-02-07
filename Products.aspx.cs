@@ -16,6 +16,15 @@ namespace _240795P_EvanLim
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["CartEmptyError"] != null)
+            {
+                string script = "alert('Your cart is empty! Please add items before checking out.');";
+
+                ClientScript.RegisterStartupScript(this.GetType(), "EmptyCartAlert", script, true);
+
+                Session.Remove("CartEmptyError");
+            }
+
             if (!IsPostBack)
             {
                 LoadProducts();

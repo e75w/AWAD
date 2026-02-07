@@ -57,7 +57,9 @@ namespace _240795P_EvanLim
 
             if (total == 0)
             {
-                Response.Redirect("Products");
+                Session["CartEmptyError"] = "True";
+
+                Response.Redirect("Products.aspx");
             }
 
             lblTotalAmount.Text = "$" + total.ToString("N2");
