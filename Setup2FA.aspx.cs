@@ -26,11 +26,9 @@ namespace _240795P_EvanLim
 
         private void GenerateQRCode()
         {
-            // 1. Generate a random Secret Key
             string secretKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 10);
-            Session["TempSecret"] = secretKey; // Save temporarily
+            Session["TempSecret"] = secretKey;
 
-            // 2. Create QR Code
             TwoFactorAuthenticator tfa = new TwoFactorAuthenticator();
             var setupInfo = tfa.GenerateSetupCode("MusicStore", Session["UserId"].ToString(), secretKey, false, 300);
 
@@ -39,7 +37,6 @@ namespace _240795P_EvanLim
 
         protected void btnConfirm_Click(object sender, EventArgs e)
         {
-            // 3. Validate the code to ensure they scanned it correctly
             string secretKey = Session["TempSecret"].ToString();
             string userCode = txtCode.Text;
 
@@ -48,13 +45,10 @@ namespace _240795P_EvanLim
 
             if (isCorrect)
             {
-                // 1. Save the Secret Key to Database
                 SaveSecretToDB(secretKey);
 
-                // 2. Set a temporary "Success" message in Session
                 Session["MFA_Status"] = "Enabled";
 
-                // 3. REDIRECT back to the Profile page immediately
                 Response.Redirect("Profile");
             }
             else

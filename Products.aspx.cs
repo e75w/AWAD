@@ -153,7 +153,7 @@ namespace _240795P_EvanLim
         {
             if (Session["UserId"] == null)
             {
-                Response.Redirect("login.aspx");
+                Response.Redirect("login");
                 return;
             }
 

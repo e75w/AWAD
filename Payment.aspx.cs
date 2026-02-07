@@ -59,7 +59,7 @@ namespace _240795P_EvanLim
             {
                 Session["CartEmptyError"] = "True";
 
-                Response.Redirect("Products.aspx");
+                Response.Redirect("Products");
             }
 
             lblTotalAmount.Text = "$" + total.ToString("N2");
@@ -108,7 +108,7 @@ namespace _240795P_EvanLim
                         totalAmount += (price * qty);
                     }
 
-                    string orderSql = "INSERT INTO Orders (Id, UserId, TotalAmount, OrderDate) VALUES (@Id, @UserId, @Total, GETDATE())";
+                    string orderSql = "INSERT INTO Orders (Id, UserId, TotalAmount, OrderDate) VALUES (@Id, @UserId, @Total, DATEADD(HOUR, 8, GETUTCDATE()))";
                     SqlCommand orderCmd = new SqlCommand(orderSql, conn, transaction);
                     orderCmd.Parameters.AddWithValue("@Id", newOrderId);
                     orderCmd.Parameters.AddWithValue("@UserId", userId);

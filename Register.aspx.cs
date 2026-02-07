@@ -12,12 +12,10 @@ namespace _240795P_EvanLim
 {
     public partial class Register : System.Web.UI.Page
     {
-        // Connection string
         string connStr = ConfigurationManager.ConnectionStrings["MainDbConnection"].ConnectionString;
 
         protected void btnRegister_Click(object sender, EventArgs e)
         {
-            // 1. Basic Validation
             if (txtPassword.Text != txtConfirmPass.Text)
             {
                 lblMessage.Text = "Passwords do not match.";
@@ -29,7 +27,6 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
-                // 2. Check if Email already exists
                 string checkSql = "SELECT COUNT(*) FROM Users WHERE Email = @Email";
                 SqlCommand checkCmd = new SqlCommand(checkSql, conn);
                 checkCmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
@@ -42,18 +39,16 @@ namespace _240795P_EvanLim
                     return;
                 }
 
-                // 3. Insert New User
-                // We use NEWID() for the Id and hardcode 'Customer' for the Role
                 string sql = "INSERT INTO Users (Id, Email, Password, Role) VALUES (NEWID(), @Email, @Password, 'Customer')";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Email", txtEmail.Text.Trim());
-                cmd.Parameters.AddWithValue("@Password", txtPassword.Text); // Note: In a real app, hash this password!
+                cmd.Parameters.AddWithValue("@Password", txtPassword.Text);
 
                 cmd.ExecuteNonQuery();
 
                 // 4. Redirect to Login
-                Response.Redirect("login.aspx");
+                Response.Redirect("login");
             }
         }
     }

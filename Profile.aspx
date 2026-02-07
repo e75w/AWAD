@@ -18,7 +18,7 @@
                             <label class="fw-bold">Password</label>
                             <div class="input-group">
                                 <asp:TextBox ID="txtPasswordDisplay" runat="server" CssClass="form-control" TextMode="Password" value="DummyPass" ReadOnly="true"></asp:TextBox>
-                                <asp:Button ID="btnInitView" runat="server" Text="👁 View" CssClass="btn btn-outline-secondary" OnClick="btnInitView_Click" />
+                                <asp:Button ID="btnInitView" runat="server" Text="View" CssClass="btn btn-outline-secondary" OnClick="btnInitView_Click" />
                             </div>
                         </div>
 

@@ -67,7 +67,7 @@ namespace _240795P_EvanLim
 
                         if (emailSent)
                         {
-                            Response.Redirect("MFA.aspx");
+                            Response.Redirect("MFA");
                         }
                         else
                         {
