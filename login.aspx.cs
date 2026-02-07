@@ -41,7 +41,7 @@ namespace _240795P_EvanLim
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string sql = "SELECT Id, Role FROM Users WHERE Email = @Email AND Password = @Password";
+                string sql = "SELECT Id, Role, Email, IsTwoFactorEnabled, TwoFactorSecret FROM Users WHERE Email = @Email AND Password = @Password";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
@@ -55,7 +55,7 @@ namespace _240795P_EvanLim
                     Session["TempUserId"] = reader["Id"];
                     Session["TempRole"] = reader["Role"];
 
-                    bool isAppEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && (bool)reader["IsTwoFactorEnabled"];
+                    bool isAppEnabled = reader["IsTwoFactorEnabled"] != DBNull.Value && Convert.ToBoolean(reader["IsTwoFactorEnabled"]);
 
                     if (isAppEnabled)
                     {
@@ -66,7 +66,8 @@ namespace _240795P_EvanLim
                     {
                         Session["AuthMode"] = "Email";
 
-                        string otp = new Random().Next(100000, 999999).ToString();
+                        Random rand = new Random();
+                        string otp = rand.Next(100000, 999999).ToString();
                         Session["OTP"] = otp;
                         SendOTPEmail(reader["Email"].ToString(), otp);
 
@@ -79,6 +80,7 @@ namespace _240795P_EvanLim
                 }
             }
         }
+
         private bool SendOTPEmail(string emailTo, string otp)
         {
             try
