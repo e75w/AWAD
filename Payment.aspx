@@ -1,55 +1,79 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Masterpage.Master" AutoEventWireup="true" CodeBehind="Payment.aspx.cs" Inherits="_240795P_EvanLim.Payment" %>
+﻿<%@ Page Title="Secure Payment" Language="C#" MasterPageFile="~/Masterpage.Master" AutoEventWireup="true" CodeBehind="Payment.aspx.cs" Inherits="_240795P_EvanLim.Payment" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
+            <div class="col-md-7">
+                <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h3>Secure Payment</h3>
+                        <h3 class="mb-0">Secure Checkout</h3>
                     </div>
                     <div class="card-body">
+                        
                         <div class="alert alert-info text-center">
                             <h5>Total to Pay: <asp:Label ID="lblTotalAmount" runat="server" Text="$0.00" Font-Bold="true"></asp:Label></h5>
                         </div>
 
                         <div class="mb-3">
-                            <label>Name on Card</label>
+                            <label class="form-label">Full Name</label>
                             <asp:TextBox ID="txtName" runat="server" CssClass="form-control" placeholder="e.g. John Doe"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvName" runat="server" ControlToValidate="txtName" ErrorMessage="Name is required" CssClass="text-danger" Display="Dynamic" />
+                            <asp:RequiredFieldValidator ID="rfvName" runat="server" ControlToValidate="txtName" 
+                                ErrorMessage="Name is required" CssClass="text-danger fw-bold" Display="Dynamic" />
                         </div>
 
                         <div class="mb-3">
-                            <label>Card Number</label>
-                            <asp:TextBox ID="txtCardNum" runat="server" CssClass="form-control" placeholder="0000 0000 0000 0000" MaxLength="16"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvCard" runat="server" ControlToValidate="txtCardNum" ErrorMessage="Card number is required" CssClass="text-danger" Display="Dynamic" />
+                            <label class="form-label">Shipping Address</label>
+                            <asp:TextBox ID="txtAddress" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="2" placeholder="123 Orchard Road..."></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="rfvAddress" runat="server" ControlToValidate="txtAddress" 
+                                ErrorMessage="Address is required" CssClass="text-danger fw-bold" Display="Dynamic" />
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>Expiry Date (MM/YY)</label>
-                                <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control" placeholder="MM/YY" MaxLength="5"></asp:TextBox>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>CVV</label>
-                                <asp:TextBox ID="txtCVV" runat="server" CssClass="form-control" placeholder="123" MaxLength="3" TextMode="Password"></asp:TextBox>
-                            </div>
-                        </div>
+                        <hr />
 
-                        <div class="mb-3">
-                            <label>Billing Address</label>
-                            <asp:TextBox ID="txtAddress" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="2"></asp:TextBox>
-                            <asp:RequiredFieldValidator ID="rfvAddress" runat="server" ControlToValidate="txtAddress" ErrorMessage="Address is required" CssClass="text-danger" Display="Dynamic" />
-                        </div>
-
-                        <asp:Button ID="btnPay" runat="server" Text="Confirm Payment" CssClass="btn btn-success w-100 btn-lg" OnClick="btnPay_Click" />
+                        <div id="paypal-button-container"></div>
+                        
+                        <asp:Button ID="btnCompletePayment" runat="server" Text="Complete" OnClick="btnCompletePayment_Click" style="display:none;" />
                         
                         <div class="mt-3 text-center">
                             <a href="Orders" class="text-secondary">Back to Cart</a>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="https://www.paypal.com/sdk/js?client-id=AeEczEDjsXJ7WmZVtmf0fpYXRS2tZrf7m-HuFNULkOwwpYm_7fTYjCnS-Y4m8WNZOaw6pGjxlpOAPDnf&currency=USD"></script>
+
+    <script>
+        paypal.Buttons({
+            onClick: function (data, actions) {
+                if (!Page_ClientValidate()) {
+                    return actions.reject();
+                }
+            },
+
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '<%= TotalAmount %>'
+                        }
+                    }]
+                });
+            },
+
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                    document.getElementById('<%= btnCompletePayment.ClientID %>').click();
+                });
+            },
+
+            onError: function (err) {
+                console.error(err);
+                alert('An error occurred during payment.');
+            }
+        }).render('#paypal-button-container');
+    </script>
 </asp:Content>

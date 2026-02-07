@@ -14,6 +14,8 @@ namespace _240795P_EvanLim
     {
         string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 
+        public string TotalAmount = "0.00"; // for paypal
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["UserId"] == null)
@@ -23,11 +25,12 @@ namespace _240795P_EvanLim
 
             if (!IsPostBack)
             {
-                DisplayTotalAmount();
+                CalculateTotalAmount();
             }
         }
 
-        private void DisplayTotalAmount()
+        // paypal
+        private void CalculateTotalAmount()
         {
             string userId = Session["UserId"].ToString();
             decimal total = 0;
@@ -52,19 +55,20 @@ namespace _240795P_EvanLim
                 }
             }
 
-            // If total is 0, they shouldn't be here
             if (total == 0)
             {
                 Response.Redirect("Products");
             }
 
             lblTotalAmount.Text = "$" + total.ToString("N2");
+            TotalAmount = total.ToString("0.00");
         }
 
-        protected void btnPay_Click(object sender, EventArgs e)
+        // AFTER PayPal success
+        protected void btnCompletePayment_Click(object sender, EventArgs e)
         {
             string userId = Session["UserId"].ToString();
-            Guid newOrderId = Guid.NewGuid(); // Generate new Order ID
+            Guid newOrderId = Guid.NewGuid();
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -74,10 +78,10 @@ namespace _240795P_EvanLim
                 try
                 {
                     string cartSql = @"
-                                      SELECT c.ProductId, c.Quantity, p.Price 
-                                      FROM CartItems c
-                                      INNER JOIN Products p ON c.ProductId = p.Id
-                                      WHERE c.UserId = @UserId";
+                                    SELECT c.ProductId, c.Quantity, p.Price 
+                                    FROM CartItems c
+                                    INNER JOIN Products p ON c.ProductId = p.Id
+                                    WHERE c.UserId = @UserId";
 
                     SqlCommand cartCmd = new SqlCommand(cartSql, conn, transaction);
                     cartCmd.Parameters.AddWithValue("@UserId", userId);
@@ -117,8 +121,8 @@ namespace _240795P_EvanLim
                     {
                         SqlCommand detailCmd = new SqlCommand(detailSql, conn, transaction);
                         detailCmd.Parameters.AddWithValue("@OrderId", newOrderId);
-                        detailCmd.Parameters.AddWithValue("@ProductId", row["ProductId"]); // Foreign Key
-                        detailCmd.Parameters.AddWithValue("@Price", row["Price"]);        // Price at the moment of purchase
+                        detailCmd.Parameters.AddWithValue("@ProductId", row["ProductId"]);
+                        detailCmd.Parameters.AddWithValue("@Price", row["Price"]);
                         detailCmd.Parameters.AddWithValue("@Qty", row["Quantity"]);
                         detailCmd.ExecuteNonQuery();
                     }
