@@ -129,7 +129,6 @@ namespace _240795P_EvanLim
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // Insert query
                 string sql = @"INSERT INTO Products (Id, Name, Price, Category, Description, ImageUrl, Stock) 
                                VALUES (NEWID(), @Name, @Price, @Category, @Desc, @Img, @Stock)";
 
@@ -155,7 +154,7 @@ namespace _240795P_EvanLim
             lblMessage.Visible = true;
             lblMessage.CssClass = "alert alert-success d-block";
 
-            LoadInventory(); // Refresh the grid immediately
+            LoadInventory();
         }
 
         protected void btnUpdate_Click(object sender, EventArgs e)
@@ -204,21 +203,18 @@ namespace _240795P_EvanLim
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    // Populate the form fields
                     txtName.Text = reader["Name"].ToString();
-                    txtPrice.Text = reader["Price"].ToString(); // Ensure DB is decimal
+                    txtPrice.Text = reader["Price"].ToString();
                     ddlCategory.SelectedValue = reader["Category"].ToString();
                     txtDesc.Text = reader["Description"].ToString();
                     txtImage.Text = reader["ImageUrl"].ToString();
                     txtStock.Text = reader["Stock"].ToString();
 
-                    // Switch to "Edit Mode"
                     hfProductId.Value = id;
                     btnAdd.Visible = false;
                     btnUpdate.Visible = true;
                     btnCancel.Visible = true;
 
-                    // Optional: Scroll to top or show message
                     lblMessage.Text = "Editing product: " + reader["Name"].ToString();
                     lblMessage.Visible = true;
                     lblMessage.CssClass = "alert alert-warning d-block";
@@ -237,8 +233,6 @@ namespace _240795P_EvanLim
                 {
                     conn.Open();
 
-                    // Note: In a real app, you can't delete a product if it's in a past Order (Foreign Key error).
-                    // We wrap this in a try/catch to warn the Admin.
                     try
                     {
                         string sql = "DELETE FROM Products WHERE Id = @Id";
@@ -246,11 +240,10 @@ namespace _240795P_EvanLim
                         cmd.Parameters.AddWithValue("@Id", productId);
                         cmd.ExecuteNonQuery();
 
-                        LoadInventory(); // Success: Refresh grid
+                        LoadInventory();
                     }
                     catch (SqlException)
                     {
-                        // This handles the Foreign Key constraint error
                         ClientScript.RegisterStartupScript(this.GetType(), "alert",
                             "alert('Cannot delete this product because it has been bought by customers. It is part of the Sales History.');",
                             true);
@@ -260,7 +253,6 @@ namespace _240795P_EvanLim
 
             if (e.CommandName == "EditProduct")
             {
-                // Get the Row Index and ID
                 int rowIndex = Convert.ToInt32(e.CommandArgument);
                 string productId = gvAdminProducts.DataKeys[rowIndex].Value.ToString();
 

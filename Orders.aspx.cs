@@ -33,7 +33,6 @@ namespace _240795P_EvanLim
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                // UPDATED SQL: Added 'c.ProductId' at the start
                 string sql = @"
                               SELECT 
                                   c.ProductId, 

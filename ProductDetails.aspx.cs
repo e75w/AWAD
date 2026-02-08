@@ -24,49 +24,7 @@ namespace _240795P_EvanLim
                     Response.Redirect("Products");
                 }
 
-                using (SqlConnection conn = new SqlConnection(connStr))
-                {
-                    // 1. Update SQL to select STOCK
-                    string sql = "SELECT * FROM Products WHERE Id = @Id";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@Id", productId);
-                    conn.Open();
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        lblName.Text = reader["Name"].ToString();
-                        lblDescription.Text = reader["Description"].ToString();
-                        lblPrice.Text = "$" + Convert.ToDecimal(reader["Price"]).ToString("N2");
-                        imgProduct.ImageUrl = reader["ImageUrl"].ToString(); // Assuming you have this
-
-                        // 2. NEW: Display Stock
-                        int stock = Convert.ToInt32(reader["Stock"]);
-
-                        if (stock > 0)
-                        {
-                            lblStock.Text = stock + " items left";
-                            lblStock.ForeColor = System.Drawing.Color.Green;
-                            btnAddToCart.Enabled = true;
-
-                            // Set Max on TextBox if possible, otherwise validate in code
-                            txtQty.Attributes.Add("max", stock.ToString());
-                        }
-                        else
-                        {
-                            lblStock.Text = "Out of Stock";
-                            lblStock.ForeColor = System.Drawing.Color.Red;
-                            btnAddToCart.Enabled = false; // Disable button
-                            btnAddToCart.Text = "Sold Out";
-                            btnAddToCart.CssClass = "btn btn-secondary";
-                            txtQty.Enabled = false;
-                        }
-                    }
-                    else
-                    {
-                        Response.Redirect("Products");
-                    }
-                }
+                LoadProductDetails();
             }
         }
 
@@ -77,17 +35,39 @@ namespace _240795P_EvanLim
                 string sql = "SELECT * FROM Products WHERE Id = @Id";
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@Id", productId);
-
                 conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
 
+                SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
                     lblName.Text = reader["Name"].ToString();
-                    lblPrice.Text = Convert.ToDecimal(reader["Price"]).ToString("N2");
                     lblDescription.Text = reader["Description"].ToString();
-                    lblCategory.Text = reader["Category"].ToString();
+                    lblPrice.Text = "$" + Convert.ToDecimal(reader["Price"]).ToString("N2");
                     imgProduct.ImageUrl = reader["ImageUrl"].ToString();
+
+                    int stock = Convert.ToInt32(reader["Stock"]);
+
+                    if (stock > 0)
+                    {
+                        lblStock.Text = stock + " items left";
+                        lblStock.ForeColor = System.Drawing.Color.Green;
+                        btnAddToCart.Enabled = true;
+
+                        txtQty.Attributes.Add("max", stock.ToString());
+                    }
+                    else
+                    {
+                        lblStock.Text = "Out of Stock";
+                        lblStock.ForeColor = System.Drawing.Color.Red;
+                        btnAddToCart.Enabled = false;
+                        btnAddToCart.Text = "Sold Out";
+                        btnAddToCart.CssClass = "btn btn-secondary";
+                        txtQty.Enabled = false;
+                    }
+                }
+                else
+                {
+                    Response.Redirect("Products");
                 }
             }
         }

@@ -48,20 +48,16 @@
 
     <script>
         paypal.Buttons({
-            // 1. MANUAL VALIDATION (Bypasses the broken ASP.NET check)
             onClick: function (data, actions) {
-                // Get the values directly from the text boxes
                 var name = document.getElementById('<%= txtName.ClientID %>').value;
                 var address = document.getElementById('<%= txtAddress.ClientID %>').value;
             
-                // Check if they are empty
                 if (name.trim() === "" || address.trim() === "") {
                     alert("Please fill in your Name and Shipping Address before paying.");
-                    return actions.reject(); // This STOPS the PayPal popup from opening
+                    return actions.reject();
                 }
             },
 
-            // 2. CREATE ORDER
             createOrder: function (data, actions) {
                 return actions.order.create({
                     purchase_units: [{
@@ -72,15 +68,12 @@
                 });
             },
 
-            // 3. ON APPROVE
             onApprove: function (data, actions) {
                 return actions.order.capture().then(function (details) {
-                    // Click the hidden button to save to database
                     document.getElementById('<%= btnCompletePayment.ClientID %>').click();
                 });
             },
 
-            // 4. ON ERROR
             onError: function (err) {
                 console.error(err);
                 alert('An error occurred. Please check the console for details.');

@@ -12,7 +12,6 @@ namespace _240795P_EvanLim
 {
         public partial class MainPage : System.Web.UI.Page
         {
-            // Connection string from Web.config
             string connStr = ConfigurationManager.ConnectionStrings["MainDBConnection"].ConnectionString;
 
             protected void Page_Load(object sender, EventArgs e)
@@ -27,7 +26,6 @@ namespace _240795P_EvanLim
             {
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
-                    // Fetch top 3 items for carousel
                     string sql = "SELECT TOP 3 * FROM Products ORDER BY Price DESC";
                     SqlDataAdapter da = new SqlDataAdapter(sql, conn);
                     DataTable dt = new DataTable();

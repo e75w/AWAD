@@ -40,7 +40,6 @@ namespace _240795P_EvanLim
                 cmd.Parameters.AddWithValue("@Id", productId);
                 object result = cmd.ExecuteScalar();
 
-                // Return 0 if null, otherwise return the stock count
                 return (result != null && result != DBNull.Value) ? Convert.ToInt32(result) : 0;
             }
         }
@@ -79,7 +78,6 @@ namespace _240795P_EvanLim
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
-                // check for if no results found
                 if (dt.Rows.Count == 0)
                 {
                     rptProducts.Visible = false;
@@ -120,7 +118,6 @@ namespace _240795P_EvanLim
             {
                 conn.Open();
 
-                // Check if item exists
                 string checkSql = "SELECT COUNT(*) FROM CartItems WHERE UserId = @UserId AND ProductId = @ProductId";
                 SqlCommand checkCmd = new SqlCommand(checkSql, conn);
                 checkCmd.Parameters.AddWithValue("@UserId", userId);

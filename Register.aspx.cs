@@ -47,7 +47,6 @@ namespace _240795P_EvanLim
 
                 cmd.ExecuteNonQuery();
 
-                // 4. Redirect to Login
                 Response.Redirect("login");
             }
         }

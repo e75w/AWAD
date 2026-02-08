@@ -89,12 +89,10 @@
 
     <script>
         window.onload = function () {
-            // Check the URL for "?error=empty"
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('error') === 'empty') {
                 alert("Your cart is empty! Please add items before checking out.");
 
-                // Optional: Clean the URL so the alert doesn't show again on refresh
                 window.history.replaceState(null, null, window.location.pathname);
             }
         }

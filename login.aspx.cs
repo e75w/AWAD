@@ -116,8 +116,6 @@ namespace _240795P_EvanLim
                 System.Diagnostics.Debug.WriteLine("Email Error: " + ex.ToString());
 
                 throw new Exception("Email Failed: " + ex.Message);
-
-                return false;
             }
         }
     }
