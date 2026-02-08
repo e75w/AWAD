@@ -24,53 +24,49 @@ namespace _240795P_EvanLim
                     Response.Redirect("Products");
                 }
 
-                LoadProductDetails();
-            }
-        }
-
-        private void LoadProductDetails()
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                string sql = "SELECT * FROM Products WHERE Id = @Id";
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@Id", productId);
-                conn.Open();
-
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+                using (SqlConnection conn = new SqlConnection(connStr))
                 {
-                    lblName.Text = reader["Name"].ToString();
-                    lblDescription.Text = reader["Description"].ToString();
-                    lblPrice.Text = "$" + Convert.ToDecimal(reader["Price"]).ToString("N2");
-                    imgProduct.ImageUrl = reader["ImageUrl"].ToString();
+                    string sql = "SELECT * FROM Products WHERE Id = @Id";
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@Id", productId);
+                    conn.Open();
 
-                    int stock = Convert.ToInt32(reader["Stock"]);
-
-                    if (stock > 0)
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
                     {
-                        lblStock.Text = stock + " items left";
-                        lblStock.ForeColor = System.Drawing.Color.Green;
-                        btnAddToCart.Enabled = true;
+                        lblName.Text = reader["Name"].ToString();
+                        lblDescription.Text = reader["Description"].ToString();
+                        lblPrice.Text = "$" + Convert.ToDecimal(reader["Price"]).ToString("N2");
+                        imgProduct.ImageUrl = reader["ImageUrl"].ToString();
 
-                        txtQty.Attributes.Add("max", stock.ToString());
+                        int stock = Convert.ToInt32(reader["Stock"]);
+
+                        if (stock > 0)
+                        {
+                            lblStock.Text = stock + " items left";
+                            lblStock.ForeColor = System.Drawing.Color.Green;
+                            btnAddToCart.Enabled = true;
+
+                            txtQty.Attributes.Add("max", stock.ToString());
+                        }
+                        else
+                        {
+                            lblStock.Text = "Out of Stock";
+                            lblStock.ForeColor = System.Drawing.Color.Red;
+                            btnAddToCart.Enabled = false;
+                            btnAddToCart.Text = "Sold Out";
+                            btnAddToCart.CssClass = "btn btn-secondary";
+                            txtQty.Enabled = false;
+                        }
                     }
                     else
                     {
-                        lblStock.Text = "Out of Stock";
-                        lblStock.ForeColor = System.Drawing.Color.Red;
-                        btnAddToCart.Enabled = false;
-                        btnAddToCart.Text = "Sold Out";
-                        btnAddToCart.CssClass = "btn btn-secondary";
-                        txtQty.Enabled = false;
+                        Response.Redirect("Products");
                     }
-                }
-                else
-                {
-                    Response.Redirect("Products");
                 }
             }
         }
+
 
         protected void btnAddToCart_Click(object sender, EventArgs e)
         {
